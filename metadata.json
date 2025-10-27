@@ -1,0 +1,7 @@
+{
+  "name": "PatternFit AI: The Automated Tailor",
+  "description": "An AI-powered virtual try-on application that uses generative AI to provide hyper-realistic visualizations and personalized fit feedback, streamlining the custom tailoring process.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}
