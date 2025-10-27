@@ -50,7 +50,7 @@ const App: React.FC = () => {
   };
 
   const processImage = useCallback(async (file: File, base64: string, mimeType: string) => {
-    if (!selectedStyle || !selectedFabric || !height) {
+    if (!selectedStyle || !selectedFabric || !height || !selectedGender) {
       setError("Please complete all selections (style, fabric, height) first.");
       return;
     }
@@ -61,13 +61,13 @@ const App: React.FC = () => {
 
     try {
       setLoadingMessage('Taking your measurements...');
-      const calculatedMeasurements = await calculateMeasurements(height);
+      const calculatedMeasurements = await calculateMeasurements(height, selectedGender);
       setMeasurements(calculatedMeasurements);
 
       setLoadingMessage('Our AI tailor is crafting your fit...');
       const [generatedImage, feedback] = await Promise.all([
-        generateVTOImage(base64, mimeType, selectedStyle, selectedFabric, calculatedMeasurements),
-        generateTailorFeedback(selectedStyle, selectedFabric, calculatedMeasurements)
+        generateVTOImage(base64, mimeType, selectedStyle, selectedFabric, calculatedMeasurements, selectedGender),
+        generateTailorFeedback(selectedStyle, selectedFabric, calculatedMeasurements, selectedGender)
       ]);
       
       setVtoImage(generatedImage);
@@ -77,18 +77,18 @@ const App: React.FC = () => {
       await saveFitData({ style: selectedStyle, fabric: selectedFabric, measurements: calculatedMeasurements });
 
       setAppStep(AppStep.RESULTS);
-    } catch (err) {
+    } catch (err: any) {
       console.error("An error occurred during the fitting process:", err);
-      setError("Sorry, something went wrong while creating your virtual fit. Please try again.");
+      setError(err.message || "Sorry, something went wrong while creating your virtual fit. Please try again.");
       setAppStep(AppStep.SELECTION);
     } finally {
       setIsLoading(false);
       setLoadingMessage('');
     }
-  }, [selectedStyle, selectedFabric, height]);
+  }, [selectedStyle, selectedFabric, height, selectedGender]);
   
   const isSelectionComplete = !!selectedGender && !!selectedStyle && !!selectedFabric && !!height && height > 0;
-
+  
   if (showOnboarding) {
     return <Onboarding onStart={() => setShowOnboarding(false)} />;
   }
@@ -144,7 +144,7 @@ const App: React.FC = () => {
             </div>
           )}
 
-          {appStep === AppStep.RESULTS && measurements && vtoImage && tailorFeedback && userImage && selectedStyle && selectedFabric && (
+          {appStep === AppStep.RESULTS && measurements && vtoImage && tailorFeedback && userImage && selectedStyle && selectedFabric && selectedGender && (
             <ResultsDisplay 
               originalImage={URL.createObjectURL(userImage.file)}
               generatedImage={`data:image/jpeg;base64,${vtoImage}`}
@@ -152,6 +152,7 @@ const App: React.FC = () => {
               measurements={measurements}
               style={selectedStyle}
               fabric={selectedFabric}
+              gender={selectedGender}
               onReset={handleReset}
             />
           )}

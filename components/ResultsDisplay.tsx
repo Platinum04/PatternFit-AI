@@ -1,5 +1,5 @@
 import React, { useCallback } from 'react';
-import { Style, Fabric, Measurements } from '../types';
+import { Style, Fabric, Measurements, Gender } from '../types';
 import { RulerIcon, TailorIcon, RefreshIcon, DownloadIcon } from './Icons';
 
 interface ResultsDisplayProps {
@@ -9,10 +9,14 @@ interface ResultsDisplayProps {
   measurements: Measurements;
   style: Style;
   fabric: Fabric;
+  gender: Gender;
   onReset: () => void;
 }
 
-const ResultsDisplay: React.FC<ResultsDisplayProps> = ({ originalImage, generatedImage, feedback, measurements, style, fabric, onReset }) => {
+const ResultsDisplay: React.FC<ResultsDisplayProps> = ({ 
+  originalImage, generatedImage, feedback, measurements, 
+  style, fabric, gender, onReset 
+}) => {
   const handleDownload = useCallback(() => {
     const link = document.createElement('a');
     link.href = generatedImage;
@@ -21,6 +25,18 @@ const ResultsDisplay: React.FC<ResultsDisplayProps> = ({ originalImage, generate
     link.click();
     document.body.removeChild(link);
   }, [generatedImage, style.id, fabric.id]);
+  
+  const bustOrChestLabel = gender === 'female' ? 'Bust' : 'Chest';
+
+  const measurementTitle = 'Your Estimated Measurements';
+
+  // Helper to format measurement keys into readable labels
+  const formatLabel = (key: string): string => {
+    if (key === 'bust') return bustOrChestLabel;
+    return key
+      .replace(/([A-Z])/g, ' $1')
+      .replace(/^./, (str) => str.toUpperCase());
+  };
 
   return (
     <div className="mt-8 animate-fade-in">
@@ -41,21 +57,18 @@ const ResultsDisplay: React.FC<ResultsDisplayProps> = ({ originalImage, generate
         <div className="bg-slate-50 p-6 rounded-xl border border-slate-200">
           <h3 className="text-xl font-bold text-slate-800 flex items-center gap-2 mb-4">
             <RulerIcon className="w-6 h-6 text-blue-500" />
-            Your Estimated Measurements
+            {measurementTitle}
           </h3>
           <ul className="space-y-2 text-lg">
-            <li className="flex justify-between">
-              <span className="font-semibold text-slate-600">Chest:</span>
-              <span className="font-mono text-slate-800">{measurements.chest} inches</span>
-            </li>
-            <li className="flex justify-between">
-              <span className="font-semibold text-slate-600">Waist:</span>
-              <span className="font-mono text-slate-800">{measurements.waist} inches</span>
-            </li>
-            <li className="flex justify-between">
-              <span className="font-semibold text-slate-600">Hip:</span>
-              <span className="font-mono text-slate-800">{measurements.hip} inches</span>
-            </li>
+             {Object.entries(measurements).map(([key, value]) => {
+                if (value === undefined || value === null) return null;
+                return (
+                   <li key={key} className="flex justify-between">
+                    <span className="font-semibold text-slate-600">{formatLabel(key)}:</span>
+                    <span className="font-mono text-slate-800">{value} inches</span>
+                  </li>
+                );
+             })}
           </ul>
         </div>
         

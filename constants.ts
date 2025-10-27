@@ -1,52 +1,29 @@
-import { Fabric, Style } from './types';
-
-export const FABRICS: Fabric[] = [
-  {
-    id: 'ankara',
-    name: 'Ankara',
-    imageUrl: 'https://images.pexels.com/photos/1848472/pexels-photo-1848472.jpeg?auto=compress&cs=tinysrgb&w=400',
-  },
-  {
-    id: 'aso-oke',
-    name: 'Aso Oke',
-    imageUrl: 'https://images.pexels.com/photos/20299949/pexels-photo-20299949.jpeg?auto=compress&cs=tinysrgb&w=400',
-  },
-  {
-    id: 'adire',
-    name: 'Adire',
-    imageUrl: 'https://images.pexels.com/photos/16333333/pexels-photo-16333333/free-photo-of-a-woman-in-a-blue-and-white-patterned-dress.jpeg?auto=compress&cs=tinysrgb&w=400',
-  },
-  {
-    id: 'lace',
-    name: 'Lace',
-    imageUrl: 'https://images.pexels.com/photos/8810248/pexels-photo-8810248.jpeg?auto=compress&cs=tinysrgb&w=400',
-  },
-];
+import { Style } from './types';
 
 export const STYLES: Style[] = [
   {
     id: 'agbada',
     name: 'Agbada / Babanriga',
     gender: 'male',
-    imageUrl: 'https://images.pexels.com/photos/14878531/pexels-photo-14878531.jpeg?auto=compress&cs=tinysrgb&w=400',
+    imageUrl: 'https://i.postimg.cc/k47Njx9k/agbada.jpg',
   },
   {
     id: 'kaftan-male',
     name: 'Kaftan',
     gender: 'male',
-    imageUrl: 'https://images.pexels.com/photos/8356218/pexels-photo-8356218.jpeg?auto=compress&cs=tinysrgb&w=400',
+    imageUrl: 'https://i.postimg.cc/L5nQz5m7/kaftan.jpg',
   },
   {
     id: 'iro-buba',
     name: 'Iro and Buba',
     gender: 'female',
-    imageUrl: 'https://images.pexels.com/photos/1183266/pexels-photo-1183266.jpeg?auto=compress&cs=tinysrgb&w=400',
+    imageUrl: 'https://images.pexels.com/photos/7177073/pexels-photo-7177073.jpeg?auto=compress&cs=tinysrgb&w=400',
   },
   {
     id: 'gown-female',
     name: 'Gown',
     gender: 'female',
-    imageUrl: 'https://images.pexels.com/photos/3775120/pexels-photo-3775120.jpeg?auto=compress&cs=tinysrgb&w=400',
+    imageUrl: 'https://images.pexels.com/photos/7177085/pexels-photo-7177085.jpeg?auto=compress&cs=tinysrgb&w=400',
   },
 ];
 

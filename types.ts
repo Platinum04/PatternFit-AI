@@ -1,3 +1,5 @@
+// FIX: Removed self-import of `Style` which was causing a conflict with the local declaration.
+
 export interface Fabric {
   id: string;
   name: string;
@@ -16,10 +18,25 @@ export interface Style {
 }
 
 export interface Measurements {
-  chest: number;
-  waist: number;
-  hip: number;
+  // Common to Male & Female
+  shoulder?: number;
+  bust?: number; // Represented as Chest for males
+  waist?: number;
+  hip?: number;
+  sleeve?: number;
+  lap?: number;
+  trouserLength?: number;
+  
+  // Female-specific
+  halfLength?: number;
+  bustPoint?: number;
+  shoulderToUnderBust?: number;
+  shoulderToWaist?: number;
+  skirtLength?: number;
+  shirtLength?: number;
+  nippleToNipple?: number;
 }
+
 
 export enum AppStep {
   SELECTION = 1,
