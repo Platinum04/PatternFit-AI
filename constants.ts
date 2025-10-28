@@ -5,25 +5,25 @@ export const STYLES: Style[] = [
     id: 'agbada',
     name: 'Agbada / Babanriga',
     gender: 'male',
-    imageUrl: 'https://i.postimg.cc/k47Njx9k/agbada.jpg',
+    imageUrl: 'https://images.unsplash.com/photo-1593834390636-2e80922116a4?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=774&q=80',
   },
   {
     id: 'kaftan-male',
     name: 'Kaftan',
     gender: 'male',
-    imageUrl: 'https://i.postimg.cc/L5nQz5m7/kaftan.jpg',
+    imageUrl: 'https://images.unsplash.com/photo-1617347454471-33958733d43c?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=774&q=80',
   },
   {
     id: 'iro-buba',
     name: 'Iro and Buba',
     gender: 'female',
-    imageUrl: 'https://images.pexels.com/photos/7177073/pexels-photo-7177073.jpeg?auto=compress&cs=tinysrgb&w=400',
+    imageUrl: 'https://www.myauntylulu.com/wp-content/uploads/2021/02/FB_IMG_1612984803115-scaled.jpg',
   },
   {
     id: 'gown-female',
     name: 'Gown',
     gender: 'female',
-    imageUrl: 'https://images.pexels.com/photos/7177085/pexels-photo-7177085.jpeg?auto=compress&cs=tinysrgb&w=400',
+    imageUrl: 'https://images.unsplash.com/photo-1612336307429-8a898d10e223?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8Z293bnxlbnwwfHwwfHx8MA%3D%3D&fm=jpg&q=60&w=3000',
   },
 ];
 
