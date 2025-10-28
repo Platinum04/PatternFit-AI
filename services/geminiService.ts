@@ -1,122 +1,177 @@
-import { GoogleGenAI, Modality } from "@google/genai";
-import { Style, Fabric, Measurements, Gender } from '../types';
-import { SYSTEM_INSTRUCTION } from '../constants';
+import { GoogleGenAI, Modality, Type } from "@google/genai";
+import { Style, Fabric, Measurements, Gender, Design, SleeveLength, AITailorFeedback } from '../types';
 
-const API_KEY = process.env.API_KEY;
-if (!API_KEY) {
-  throw new Error("API_KEY environment variable not set. Please configure it before running the application.");
-}
-const ai = new GoogleGenAI({ apiKey: API_KEY });
+// FIX: Initialize the GoogleGenAI client with the API key from environment variables.
+const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
-const fileToGenerativePart = (base64: string, mimeType: string) => {
-  return {
-    inlineData: {
-      data: base64,
-      mimeType,
-    },
-  };
+// Helper to fetch image and convert to a part for the Gemini API
+const urlToGenerativePart = async (url: string, mimeType: string) => {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error(`Failed to fetch image from ${url}`);
+    const blob = await response.blob();
+    const base64 = await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve((reader.result as string).split(',')[1]);
+        reader.onerror = reject;
+        reader.readAsDataURL(blob);
+    });
+    return {
+        inlineData: {
+            data: base64,
+            mimeType,
+        },
+    };
 };
 
-const formatMeasurementsForPrompt = (measurements: Measurements, gender: Gender) => {
-    const bustOrChest = gender === 'female' ? 'Bust' : 'Chest';
-    
-    // Helper to convert camelCase to Title Case for the prompt
-    const toTitleCase = (str: string) => str
-      .replace(/([A-Z])/g, ' $1')
-      .replace(/^./, (s) => s.toUpperCase());
-
-    return Object.entries(measurements)
-        .filter(([, value]) => value !== undefined && value !== null)
-        .map(([key, value]) => {
-            let label = toTitleCase(key);
-            if (key === 'bust') {
-                label = bustOrChest;
-            }
-            return `${label}: ${value}"`;
-        })
-        .join(', ');
-}
-
-
-export const generateVTOImage = async (
-  userImageBase64: string,
-  userImageMimeType: string,
+/**
+ * Generates a virtual try-on image using the Gemini API.
+ * @param userImage The user's photo as a base64 string with mime type.
+ * @param style The selected clothing style.
+ * @param fabric The selected fabric, which must have base64 data.
+ * @param design The selected embroidery or style design.
+ * @param sleeveLength The desired sleeve length for the outfit.
+ * @returns A promise that resolves to the base64 string of the generated image.
+ */
+export const generateVirtualTryOn = async (
+  userImage: { base64: string; mimeType: string },
   style: Style,
   fabric: Fabric,
-  measurements: Measurements,
-  gender: Gender
+  design: Design,
+  sleeveLength: SleeveLength,
 ): Promise<string> => {
-  const userImagePart = fileToGenerativePart(userImageBase64, userImageMimeType);
+  const model = 'gemini-2.5-flash-image';
   
-  const parts: any[] = [userImagePart];
-  let textPrompt = '';
-  const measurementString = formatMeasurementsForPrompt(measurements, gender);
-
-  const basePrompt = `Virtual try-on: Place a photorealistic, wrinkle-free, tailored ${style.name} on the person in the first image. The garment must accurately fit the body based on these estimated measurements (in inches): ${measurementString}. Ensure the fabric drapes naturally over the body shape and conforms to the pose. Make the lighting consistent with the original photo.`;
-
-  if (fabric.base64 && fabric.mimeType) {
-    const fabricImagePart = fileToGenerativePart(fabric.base64, fabric.mimeType);
-    parts.push(fabricImagePart);
-    textPrompt = `Using the garment fabric from the second image, which the user has named '${fabric.name}', ${basePrompt}`;
-  } else {
-    throw new Error("Fabric data is incomplete. Custom fabric image data is required.");
+  if (!fabric.base64 || !fabric.mimeType) {
+    throw new Error('Fabric data is missing required base64 or mimeType for API call.');
   }
 
-  parts.push({ text: textPrompt });
+  const userImagePart = {
+    inlineData: {
+      data: userImage.base64,
+      mimeType: userImage.mimeType,
+    },
+  };
+
+  const fabricImagePart = {
+    inlineData: {
+      data: fabric.base64,
+      mimeType: fabric.mimeType,
+    }
+  };
+  
+  // The design image is a PNG from storage
+  const designImagePart = await urlToGenerativePart(design.imageUrl, 'image/png');
+
+  const prompt = `You are a world-class virtual tailor specializing in Nigerian fashion. Your task is to dress the person in the user's photo with a new, hyper-realistic outfit based on several inputs.
+- **Style**: Dress them in a "${style.name}" outfit.
+- **Sleeve Length**: The outfit must have ${sleeveLength} sleeves.
+- **Fabric**: Use the provided fabric pattern for the entire outfit.
+- **Design**: Apply the embroidery or design pattern from the design image onto the outfit in a natural and stylish way (e.g., on the chest, collar, or as the design dictates).
+- **Realism**: The result must be hyper-realistic. The fabric should drape naturally on the person's body, following their contours, pose, and body shape. Shadows and lighting must be consistent with the original photo.
+- **Preservation**: Do NOT change the person's face, hair, skin tone, body shape, or the background of the image. Only replace their current clothing with the new, fully-designed outfit.
+- **Output**: The output must be only the final, edited image.`;
 
   const response = await ai.models.generateContent({
-    model: 'gemini-2.5-flash-image',
+    model,
     contents: {
-      parts: parts,
+      parts: [
+        { text: "This is the user's photo:" },
+        userImagePart,
+        { text: "Use this fabric pattern:" },
+        fabricImagePart,
+        { text: "Apply this design/embroidery:" },
+        designImagePart,
+        { text: prompt },
+      ],
     },
     config: {
       responseModalities: [Modality.IMAGE],
-      systemInstruction: SYSTEM_INSTRUCTION,
     },
   });
 
-  const candidate = response?.candidates?.[0];
-  
-  // Check for safety blocks or other non-successful completions first
-  if (!candidate || (candidate.finishReason && candidate.finishReason !== 'STOP')) {
-     let reason = "an unknown issue";
-     if (candidate?.finishReason) {
-         reason = `the following reason: ${candidate.finishReason}. This is often due to a safety block on the input image`;
-     }
-     console.error("Gemini API response blocked or incomplete.", response);
-     throw new Error(`Image generation failed due to ${reason}. Please try using a different photo.`);
-  }
-
-  const contentParts = candidate?.content?.parts;
-  if (contentParts) {
-    for (const part of contentParts) {
-      if (part.inlineData) {
-        return part.inlineData.data;
-      }
+  for (const part of response.candidates?.[0]?.content?.parts ?? []) {
+    if (part.inlineData) {
+      return part.inlineData.data;
     }
   }
 
-  // Fallback error if no image is found even in a seemingly successful response
-  console.error("Gemini API response did not contain an image.", response);
-  throw new Error("No image was generated by the API. The response did not contain image data.");
+  // Provide a more specific error message if the response was blocked.
+  const blockReason = response.candidates?.[0]?.finishReason;
+  if (blockReason === 'SAFETY') {
+    throw new Error('Image generation was blocked due to safety settings. Please try a different photo.');
+  }
+
+  throw new Error('No image was generated by the AI model. The response may have been empty or blocked.');
 };
 
-export const generateTailorFeedback = async (
+/**
+ * Generates a professional, structured tailor's feedback using the Gemini API.
+ * @returns A promise that resolves to an object containing the AI's detailed feedback.
+ */
+export const getAITailorFeedback = async (
+  measurements: Measurements,
   style: Style,
   fabric: Fabric,
-  measurements: Measurements,
-  gender: Gender
-): Promise<string> => {
-  const measurementString = formatMeasurementsForPrompt(measurements, gender);
-  const textPrompt = `The client is trying on a ${style.name} made from a fabric they called "${fabric.name}". Their body measurements in inches are: ${measurementString}. What is your tailor's assessment of the fit?`;
+  design: Design,
+  gender: Gender,
+  sleeveLength: SleeveLength,
+): Promise<AITailorFeedback> => {
+  const model = 'gemini-2.5-flash';
+
+  const measurementString = Object.entries(measurements)
+    .filter(([, value]) => value !== undefined && value !== null)
+    .map(([key, value]) => `${key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}: ${value} inches`)
+    .join(', ');
+
+  const prompt = `You are an expert Nigerian tailor providing a structured virtual fitting assessment. Analyze the client's choices and measurements to generate insightful feedback. Return the feedback as a JSON object.
+
+Client Information:
+- Gender: ${gender}
+- Style: ${style.name}
+- Sleeve Preference: ${sleeveLength} sleeves
+- Fabric: ${fabric.name}
+- Design: ${design.name}
+- Estimated Measurements: ${measurementString}
+
+Provide feedback for the following keys in your JSON response:
+- "overallImpression": A summary statement (1-2 sentences) complimenting the combination.
+- "fitAnalysis": Detailed analysis (2 sentences) on how the ${style.name} style will complement their frame, using their measurements.
+- "fabricChoice": A comment (1-2 sentences) on how the ${fabric.name} fabric works with the chosen style.
+- "styleTip": A practical tip (1-2 sentences) for accessorizing or wearing the outfit.`;
 
   const response = await ai.models.generateContent({
-    model: 'gemini-2.5-flash',
-    contents: textPrompt,
+    model,
+    contents: prompt,
     config: {
-      systemInstruction: SYSTEM_INSTRUCTION,
-    }
+      responseMimeType: "application/json",
+      responseSchema: {
+        type: Type.OBJECT,
+        properties: {
+          overallImpression: { type: Type.STRING, description: "A summary statement complimenting the combination." },
+          fitAnalysis: { type: Type.STRING, description: "Detailed analysis on how the style complements their frame." },
+          fabricChoice: { type: Type.STRING, description: "A comment on how the fabric works with the chosen style." },
+          styleTip: { type: Type.STRING, description: "A practical tip for accessorizing or wearing the outfit." },
+        },
+        required: ["overallImpression", "fitAnalysis", "fabricChoice", "styleTip"],
+      },
+    },
   });
-
-  return response.text;
+  
+  try {
+    const feedbackObject = JSON.parse(response.text);
+    // Basic validation to ensure all fields are present
+    if (feedbackObject.overallImpression && feedbackObject.fitAnalysis && feedbackObject.fabricChoice && feedbackObject.styleTip) {
+      return feedbackObject as AITailorFeedback;
+    }
+    throw new Error("Parsed JSON from AI is missing required fields.");
+  } catch (e) {
+    console.error("Failed to parse AI feedback JSON:", e, "Raw text:", response.text);
+    // Provide a graceful fallback if the API response is not valid JSON
+    return {
+      overallImpression: "A truly wonderful combination! This style and fabric choice will create a stunning and memorable outfit.",
+      fitAnalysis: "The selected style is well-suited to create a flattering silhouette based on your estimated measurements.",
+      fabricChoice: "The fabric provides a beautiful texture and drape that enhances the overall design.",
+      styleTip: "Consider pairing this with elegant, complementary accessories to complete your look for any special occasion.",
+    };
+  }
 };

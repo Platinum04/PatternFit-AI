@@ -1,164 +1,279 @@
-import React, { useState, useCallback } from 'react';
-import { Fabric, Style, Gender, Measurements, AppStep } from './types';
+import React, { useState, useEffect, useCallback } from 'react';
+import { AppStep, Style, Fabric, Gender, Measurements, SavedFit, Design, SleeveLength, AITailorFeedback } from './types';
 import { calculateMeasurements } from './services/measurementService';
-import { generateVTOImage, generateTailorFeedback } from './services/geminiService';
-import { saveFitData } from './services/firestoreService';
+import { generateVirtualTryOn, getAITailorFeedback } from './services/geminiService';
+import { getSavedFits, saveFit, deleteFit } from './services/wardrobeService';
 import Header from './components/Header';
 import StepIndicator from './components/StepIndicator';
-import GarmentSelector from './components/PatternSelector';
+import PatternSelector from './components/PatternSelector';
 import ImageUploader from './components/ImageUploader';
 import ResultsDisplay from './components/ResultsDisplay';
 import LoadingOverlay from './components/LoadingOverlay';
-import CameraCapture from './components/CameraCapture';
 import Onboarding from './components/Onboarding';
+import { SparklesIcon } from './components/Icons';
+import CameraCapture from './components/CameraCapture';
+import Wardrobe from './components/Wardrobe';
+import AboutModal from './components/AboutModal';
+import { FABRICS } from './constants';
+
+const fetchImageAsBase64 = async (url: string): Promise<{ base64: string, mimeType: string }> => {
+  const response = await fetch(url);
+  if (!response.ok) throw new Error(`Failed to fetch image from ${url}`);
+  const blob = await response.blob();
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      if (reader.result) {
+        const base64String = (reader.result as string).split(',')[1];
+        resolve({ base64: base64String, mimeType: blob.type });
+      } else {
+        reject(new Error('Failed to read blob as data URL.'));
+      }
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(blob);
+  });
+};
 
 const App: React.FC = () => {
-  const [showOnboarding, setShowOnboarding] = useState<boolean>(true);
   const [appStep, setAppStep] = useState<AppStep>(AppStep.SELECTION);
-  const [selectedGender, setSelectedGender] = useState<Gender | null>(null);
-  const [selectedStyle, setSelectedStyle] = useState<Style | null>(null);
-  const [selectedFabric, setSelectedFabric] = useState<Fabric | null>(null);
-  const [height, setHeight] = useState<number | ''>('');
-  const [userImage, setUserImage] = useState<{ file: File; base64: string; mimeType: string; } | null>(null);
-  const [measurements, setMeasurements] = useState<Measurements | null>(null);
-  const [vtoImage, setVtoImage] = useState<string | null>(null);
-  const [tailorFeedback, setTailorFeedback] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [loadingMessage, setLoadingMessage] = useState<string>('');
-  const [error, setError] = useState<string | null>(null);
-  const [showCamera, setShowCamera] = useState<boolean>(false);
-
-  const handleReset = () => {
-    setAppStep(AppStep.SELECTION);
-    setSelectedGender(null);
-    setSelectedStyle(null);
-    setSelectedFabric(null);
-    setHeight('');
-    setUserImage(null);
-    setMeasurements(null);
-    setVtoImage(null);
-    setTailorFeedback(null);
-    setIsLoading(false);
-    setError(null);
-    setShowCamera(false);
-  };
+  const [hasOnboarded, setHasOnboarded] = useState<boolean>(false);
   
-  const handleGenderSelect = (gender: Gender) => {
-      setSelectedGender(gender);
-      setSelectedStyle(null);
-      setSelectedFabric(null);
+  // Selections
+  const [selectedStyle, setSelectedStyle] = useState<Style | null>(null);
+  const [selectedDesign, setSelectedDesign] = useState<Design | null>(null);
+  const [selectedFabric, setSelectedFabric] = useState<Fabric | null>(null);
+  const [userImage, setUserImage] = useState<{ base64: string; mimeType: string; } | null>(null);
+  const [gender, setGender] = useState<Gender>('female');
+  const [sleeveLength, setSleeveLength] = useState<SleeveLength>('short');
+  
+  // Results
+  const [measurements, setMeasurements] = useState<Measurements | null>(null);
+  const [generatedImageBase64, setGeneratedImageBase64] = useState<string | null>(null);
+  const [tailorFeedback, setTailorFeedback] = useState<AITailorFeedback | null>(null);
+  
+  // App State
+  const [loadingMessage, setLoadingMessage] = useState<string | null>(null);
+  const [isCameraOpen, setIsCameraOpen] = useState<boolean>(false);
+  const [isWardrobeOpen, setIsWardrobeOpen] = useState<boolean>(false);
+  const [isAboutModalOpen, setIsAboutModalOpen] = useState<boolean>(false);
+  const [savedFits, setSavedFits] = useState<SavedFit[]>([]);
+  const [isCurrentFitSaved, setIsCurrentFitSaved] = useState<boolean>(false);
+  const [viewingSavedFit, setViewingSavedFit] = useState<boolean>(false);
+  
+  useEffect(() => {
+    const prefetchFabrics = async () => {
+      for (const fabric of FABRICS) {
+        if (!fabric.base64) {
+          try {
+            const { base64, mimeType } = await fetchImageAsBase64(fabric.imageUrl);
+            fabric.base64 = base64;
+            fabric.mimeType = mimeType;
+          } catch (error) {
+            console.error(`Failed to pre-fetch fabric ${fabric.name}:`, error);
+          }
+        }
+      }
+    };
+    prefetchFabrics();
+  }, []);
+
+  useEffect(() => {
+    const onboardingStatus = localStorage.getItem('patternfit-onboarded');
+    if (onboardingStatus === 'true') {
+      setHasOnboarded(true);
+    }
+    setSavedFits(getSavedFits());
+  }, []);
+
+  const handleOnboarding = () => {
+    localStorage.setItem('patternfit-onboarded', 'true');
+    setHasOnboarded(true);
   };
 
-  const processImage = useCallback(async (file: File, base64: string, mimeType: string) => {
-    if (!selectedStyle || !selectedFabric || !height || !selectedGender) {
-      setError("Please complete all selections (style, fabric, height) first.");
+  const handleImageUpload = useCallback((file: File, base64: string, mimeType: string) => {
+    setUserImage({ base64, mimeType });
+  }, []);
+
+  const handleFabricSelect = (fabric: Fabric) => {
+    if (!fabric.base64) {
+      console.error("Selected fabric is missing base64 data.");
       return;
     }
-    setError(null);
-    setIsLoading(true);
-    setUserImage({ file, base64, mimeType });
+    setSelectedFabric(fabric);
+  };
+  
+  const handleGenerateFit = async () => {
+    if (!selectedStyle || !selectedFabric || !userImage || !selectedDesign) return;
+
     setAppStep(AppStep.PROCESSING);
-
+    setLoadingMessage('Estimating your measurements...');
+    
+    const estimatedHeightInInches = gender === 'female' ? 65 : 70;
+    const calculatedMeasurements = await calculateMeasurements(estimatedHeightInInches, gender);
+    setMeasurements(calculatedMeasurements);
+    
+    setLoadingMessage('Warming up the AI tailor...');
     try {
-      setLoadingMessage('Taking your measurements...');
-      const calculatedMeasurements = await calculateMeasurements(height, selectedGender);
-      setMeasurements(calculatedMeasurements);
-
-      setLoadingMessage('Our AI tailor is crafting your fit...');
-      const [generatedImage, feedback] = await Promise.all([
-        generateVTOImage(base64, mimeType, selectedStyle, selectedFabric, calculatedMeasurements, selectedGender),
-        generateTailorFeedback(selectedStyle, selectedFabric, calculatedMeasurements, selectedGender)
-      ]);
+      const feedbackPromise = getAITailorFeedback(calculatedMeasurements, selectedStyle, selectedFabric, selectedDesign, gender, sleeveLength);
       
-      setVtoImage(generatedImage);
+      setLoadingMessage('Generating your virtual try-on...');
+      const generatedImagePromise = generateVirtualTryOn(userImage, selectedStyle, selectedFabric, selectedDesign, sleeveLength);
+      
+      const [feedback, generatedImage] = await Promise.all([feedbackPromise, generatedImagePromise]);
+      
       setTailorFeedback(feedback);
-
-      setLoadingMessage('Saving your results...');
-      await saveFitData({ style: selectedStyle, fabric: selectedFabric, measurements: calculatedMeasurements });
-
+      setGeneratedImageBase64(generatedImage);
+      
       setAppStep(AppStep.RESULTS);
-    } catch (err: any) {
-      console.error("An error occurred during the fitting process:", err);
-      setError(err.message || "Sorry, something went wrong while creating your virtual fit. Please try again.");
-      setAppStep(AppStep.SELECTION);
+    } catch (error) {
+      console.error('Error during AI generation:', error);
+      alert(`An error occurred: ${error instanceof Error ? error.message : String(error)}`);
+      handleReset();
     } finally {
-      setIsLoading(false);
-      setLoadingMessage('');
+      setLoadingMessage(null);
     }
-  }, [selectedStyle, selectedFabric, height, selectedGender]);
+  };
+
+  const handleReset = useCallback(() => {
+    setAppStep(AppStep.SELECTION);
+    setSelectedStyle(null);
+    setSelectedFabric(null);
+    setSelectedDesign(null);
+    setUserImage(null);
+    setMeasurements(null);
+    setGeneratedImageBase64(null);
+    setTailorFeedback(null);
+    setGender('female');
+    setSleeveLength('short');
+    setIsCurrentFitSaved(false);
+    setViewingSavedFit(false);
+  }, []);
   
-  const isSelectionComplete = !!selectedGender && !!selectedStyle && !!selectedFabric && !!height && height > 0;
+  const handleSaveCurrentFit = () => {
+    if (!selectedStyle || !selectedFabric || !selectedDesign || !measurements || !tailorFeedback || !userImage || !generatedImageBase64) {
+        alert("Cannot save, essential data is missing.");
+        return;
+    }
+
+    const newFit: SavedFit = {
+        id: `fit_${Date.now()}`,
+        style: selectedStyle,
+        fabric: selectedFabric,
+        design: selectedDesign,
+        sleeveLength: sleeveLength,
+        measurements: measurements,
+        feedback: tailorFeedback,
+        userImage: userImage,
+        generatedImageBase64: generatedImageBase64,
+        createdAt: new Date().toISOString(),
+    };
+
+    saveFit(newFit);
+    setSavedFits(getSavedFits());
+    setIsCurrentFitSaved(true);
+  };
   
-  if (showOnboarding) {
-    return <Onboarding onStart={() => setShowOnboarding(false)} />;
+  const handleDeleteFit = (fitId: string) => {
+    deleteFit(fitId);
+    setSavedFits(getSavedFits());
+  };
+  
+  const handleViewFitFromWardrobe = (fit: SavedFit) => {
+    setSelectedStyle(fit.style);
+    setSelectedFabric(fit.fabric);
+    setSelectedDesign(fit.design);
+    setSleeveLength(fit.sleeveLength);
+    setUserImage(fit.userImage);
+    setMeasurements(fit.measurements);
+    setTailorFeedback(fit.feedback);
+    setGeneratedImageBase64(fit.generatedImageBase64);
+    setGender(fit.style.gender);
+    setAppStep(AppStep.RESULTS);
+    setIsWardrobeOpen(false);
+    setViewingSavedFit(true);
+    setIsCurrentFitSaved(true);
+  };
+
+  const isGenerateButtonDisabled = !selectedStyle || !selectedFabric || !userImage || !selectedDesign;
+
+  if (!hasOnboarded) {
+    return <Onboarding onStart={handleOnboarding} />;
   }
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center p-4 sm:p-6 lg:p-8 bg-slate-100">
-      {showCamera && <CameraCapture onCapture={processImage} onClose={() => setShowCamera(false)} />}
-      <div className="w-full max-w-4xl mx-auto">
-        <Header />
-        <main className="bg-white rounded-2xl shadow-lg p-6 sm:p-8 mt-6 transition-all duration-500">
+    <div className="min-h-screen flex flex-col items-center p-4 sm:p-6 lg:p-8">
+      {loadingMessage && <LoadingOverlay message={loadingMessage} />}
+      {isCameraOpen && <CameraCapture onCapture={handleImageUpload} onClose={() => setIsCameraOpen(false)} />}
+      {isWardrobeOpen && <Wardrobe fits={savedFits} onClose={() => setIsWardrobeOpen(false)} onSelectFit={handleViewFitFromWardrobe} onDeleteFit={handleDeleteFit} />}
+      {isAboutModalOpen && <AboutModal isOpen={isAboutModalOpen} onClose={() => setIsAboutModalOpen(false)} />}
+      
+      <Header onWardrobeClick={() => setIsWardrobeOpen(true)} onAboutClick={() => setIsAboutModalOpen(true)} />
+      
+      <main className="w-full max-w-4xl mt-8">
+        <div className="bg-white p-6 sm:p-8 rounded-2xl shadow-lg">
           <StepIndicator currentStep={appStep} />
-          {error && (
-            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg relative my-4" role="alert">
-              <strong className="font-bold">Error: </strong>
-              <span className="block sm:inline">{error}</span>
-            </div>
-          )}
-
-          {isLoading && <LoadingOverlay message={loadingMessage} />}
 
           {appStep === AppStep.SELECTION && (
-            <div className="mt-8 space-y-8">
-              <GarmentSelector 
-                selectedGender={selectedGender} onGenderSelect={handleGenderSelect}
-                selectedStyle={selectedStyle} onStyleSelect={setSelectedStyle}
-                selectedFabric={selectedFabric} onFabricSelect={setSelectedFabric}
+            <div className="mt-8">
+              <PatternSelector
+                gender={gender}
+                onGenderChange={setGender}
+                selectedStyle={selectedStyle}
+                onStyleSelect={setSelectedStyle}
+                sleeveLength={sleeveLength}
+                onSleeveLengthChange={setSleeveLength}
+                selectedDesign={selectedDesign}
+                onDesignSelect={setSelectedDesign}
+                selectedFabric={selectedFabric}
+                onFabricSelect={handleFabricSelect}
+                disabled={appStep !== AppStep.SELECTION}
               />
-              
-              {selectedFabric && (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start animate-fade-in">
-                  <div>
-                    <h2 className="text-xl font-bold text-slate-700 mb-4">4. Enter Your Height</h2>
-                    <div className="relative">
-                        <input
-                          type="number"
-                          id="height"
-                          value={height}
-                          onChange={(e) => setHeight(e.target.value === '' ? '' : parseFloat(e.target.value))}
-                          placeholder="e.g., 68"
-                          className="w-full p-4 pr-16 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
-                          aria-describedby="height-unit"
-                        />
-                        <span id="height-unit" className="absolute inset-y-0 right-0 flex items-center pr-4 text-slate-500">inches</span>
-                      </div>
-                  </div>
-                  <div>
-                    <h2 className="text-xl font-bold text-slate-700 mb-4">5. Provide Your Photo</h2>
-                    <ImageUploader onUpload={processImage} onTakePhoto={() => setShowCamera(true)} disabled={!isSelectionComplete} />
-                    {!isSelectionComplete && <p className="text-sm text-slate-500 mt-2">Please complete all previous steps to enable photo input.</p>}
-                  </div>
-                </div>
-              )}
+              <div className="mt-6 border-t pt-6">
+                <h3 className="text-lg font-semibold text-slate-700 mb-3">6. Upload Your Photo</h3>
+                <ImageUploader onUpload={handleImageUpload} onTakePhoto={() => setIsCameraOpen(true)} disabled={appStep !== AppStep.SELECTION} />
+              </div>
+
+              <div className="mt-8 text-center">
+                <button
+                  onClick={handleGenerateFit}
+                  disabled={isGenerateButtonDisabled}
+                  className={`inline-flex items-center gap-3 px-12 py-4 font-bold text-lg rounded-lg shadow-lg transition-all transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500
+                    ${isGenerateButtonDisabled
+                      ? 'bg-slate-300 text-slate-500 cursor-not-allowed'
+                      : 'bg-blue-600 text-white hover:bg-blue-700'
+                    }`}
+                >
+                  <SparklesIcon className="w-6 h-6" />
+                  Generate My Fitting
+                </button>
+              </div>
             </div>
           )}
 
-          {appStep === AppStep.RESULTS && measurements && vtoImage && tailorFeedback && userImage && selectedStyle && selectedFabric && selectedGender && (
-            <ResultsDisplay 
-              originalImage={URL.createObjectURL(userImage.file)}
-              generatedImage={`data:image/jpeg;base64,${vtoImage}`}
-              feedback={tailorFeedback}
-              measurements={measurements}
-              style={selectedStyle}
-              fabric={selectedFabric}
-              gender={selectedGender}
-              onReset={handleReset}
-            />
+          {appStep === AppStep.RESULTS && userImage && generatedImageBase64 && tailorFeedback && measurements && selectedStyle && selectedFabric && selectedDesign && (
+             <div className="mt-8">
+               <ResultsDisplay
+                originalImage={`data:${userImage.mimeType};base64,${userImage.base64}`}
+                generatedImage={`data:image/png;base64,${generatedImageBase64}`}
+                feedback={tailorFeedback}
+                measurements={measurements}
+                style={selectedStyle}
+                fabric={selectedFabric}
+                design={selectedDesign}
+                sleeveLength={sleeveLength}
+                gender={gender}
+                onReset={handleReset}
+                onSave={handleSaveCurrentFit}
+                isSaved={isCurrentFitSaved}
+                onWardrobeClick={() => setIsWardrobeOpen(true)}
+                isSavedView={viewingSavedFit}
+                onClose={handleReset}
+              />
+             </div>
           )}
-
-        </main>
-      </div>
+        </div>
+      </main>
     </div>
   );
 };
