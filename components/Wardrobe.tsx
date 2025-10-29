@@ -48,7 +48,7 @@ const Wardrobe: React.FC<WardrobeProps> = ({ fits, onClose, onSelectFit, onDelet
                   onClick={() => onSelectFit(fit)}
                 >
                   <img 
-                    src={`data:image/png;base64,${fit.generatedImageBase64}`} 
+                    src={`data:image/jpeg;base64,${fit.generatedImageBase64}`} 
                     alt={`Virtual try-on for ${fit.style.name}`} 
                     className="w-full h-full object-cover aspect-[3/4] transition-transform duration-300 group-hover:scale-105"
                   />

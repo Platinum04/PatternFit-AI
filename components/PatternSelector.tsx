@@ -1,12 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { Fabric, Style, Gender, Design, SleeveLength } from '../types';
-import { FABRICS, STYLES, DESIGNS } from '../constants';
+import { MALE_FABRICS, FEMALE_FABRICS, STYLES, DESIGNS } from '../constants';
 import { getSavedFabrics, saveFabrics } from '../services/fabricService';
 import { UploadIcon } from './Icons';
+import FabricNameModal from './FabricNameModal';
 
 interface PatternSelectorProps {
   gender: Gender;
   onGenderChange: (gender: Gender) => void;
+  height: string;
+  onHeightChange: (height: string) => void;
   selectedStyle: Style | null;
   onStyleSelect: (style: Style | null) => void;
   sleeveLength: SleeveLength;
@@ -15,12 +18,21 @@ interface PatternSelectorProps {
   onDesignSelect: (design: Design | null) => void;
   selectedFabric: Fabric | null;
   onFabricSelect: (fabric: Fabric) => void;
+  highlightHeight: boolean;
   disabled: boolean;
+}
+
+interface PendingFabric {
+  base64: string;
+  mimeType: string;
+  file: File;
 }
 
 const PatternSelector: React.FC<PatternSelectorProps> = ({
   gender,
   onGenderChange,
+  height,
+  onHeightChange,
   selectedStyle,
   onStyleSelect,
   sleeveLength,
@@ -29,10 +41,13 @@ const PatternSelector: React.FC<PatternSelectorProps> = ({
   onDesignSelect,
   selectedFabric,
   onFabricSelect,
+  highlightHeight,
   disabled
 }) => {
   const [customFabrics, setCustomFabrics] = useState<Fabric[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [isNameModalOpen, setIsNameModalOpen] = useState(false);
+  const [pendingFabric, setPendingFabric] = useState<PendingFabric | null>(null);
 
   useEffect(() => {
     setCustomFabrics(getSavedFabrics());
@@ -43,6 +58,11 @@ const PatternSelector: React.FC<PatternSelectorProps> = ({
     if (selectedStyle && selectedStyle.gender !== newGender) {
       onStyleSelect(null);
       onDesignSelect(null);
+    }
+    // Reset fabric selection if it's from the gender-specific list
+    const currentDefaultFabrics = newGender === 'female' ? MALE_FABRICS : FEMALE_FABRICS;
+    if (selectedFabric && currentDefaultFabrics.some(f => f.id === selectedFabric.id)) {
+        onFabricSelect(null as any);
     }
   };
 
@@ -70,24 +90,36 @@ const PatternSelector: React.FC<PatternSelectorProps> = ({
     reader.onloadend = () => {
       const base64String = (reader.result as string).split(',')[1];
       if (base64String) {
-        const newFabric: Fabric = {
-          id: `custom-${Date.now()}`,
-          name: file.name.split('.').slice(0, -1).join('.') || 'Custom Fabric',
-          imageUrl: URL.createObjectURL(file),
-          base64: base64String,
-          mimeType: file.type,
-        };
-        const updatedFabrics = [...customFabrics, newFabric];
-        setCustomFabrics(updatedFabrics);
-        saveFabrics(updatedFabrics);
-        onFabricSelect(newFabric);
+        setPendingFabric({ base64: base64String, mimeType: file.type, file });
+        setIsNameModalOpen(true);
       }
     };
     reader.readAsDataURL(file);
     event.target.value = '';
   };
+
+  const handleSaveCustomFabric = (name: string) => {
+    if (!pendingFabric) return;
+    
+    const newFabric: Fabric = {
+      id: `custom-${Date.now()}`,
+      name: name,
+      imageUrl: URL.createObjectURL(pendingFabric.file),
+      base64: pendingFabric.base64,
+      mimeType: pendingFabric.mimeType,
+    };
+    
+    const updatedFabrics = [...customFabrics, newFabric];
+    setCustomFabrics(updatedFabrics);
+    saveFabrics(updatedFabrics);
+    onFabricSelect(newFabric);
+
+    setIsNameModalOpen(false);
+    setPendingFabric(null);
+  };
   
-  const allFabrics = [...FABRICS, ...customFabrics];
+  const genderSpecificFabrics = gender === 'female' ? FEMALE_FABRICS : MALE_FABRICS;
+  const allFabrics = [...genderSpecificFabrics, ...customFabrics];
   const filteredStyles = STYLES.filter(s => s.gender === gender);
   const filteredDesigns = selectedStyle ? DESIGNS.filter(d => d.styleId === selectedStyle.id) : [];
 
@@ -98,6 +130,12 @@ const PatternSelector: React.FC<PatternSelectorProps> = ({
 
   return (
     <div className="space-y-6">
+      <FabricNameModal
+        isOpen={isNameModalOpen}
+        onClose={() => setIsNameModalOpen(false)}
+        onSave={handleSaveCustomFabric}
+      />
+
       {/* 1. Gender Selection */}
       <div>
         <h3 className="text-lg font-semibold text-slate-700 mb-2">1. Select Gender</h3>
@@ -117,9 +155,41 @@ const PatternSelector: React.FC<PatternSelectorProps> = ({
         </div>
       </div>
 
-      {/* 2. Style Selection */}
+      {/* 2. Height Input */}
+      <div className={`rounded-lg transition-all duration-300 ${highlightHeight ? 'bg-blue-50 ring-2 ring-blue-300 p-3 -m-3' : ''}`}>
+        <div>
+          <h3 className="text-lg font-semibold text-slate-700 mb-2">2. Enter Your Height</h3>
+          <div className="max-w-xs">
+            <label htmlFor="height" className="block text-sm font-medium text-slate-600 mb-1">Height</label>
+            <div className="relative mt-1 rounded-md shadow-sm">
+              <input
+                type="number"
+                id="height"
+                value={height}
+                onChange={(e) => onHeightChange(e.target.value)}
+                placeholder="e.g., 5.75"
+                min="1"
+                max="8"
+                step="0.01"
+                className="block w-full pl-3 pr-12 py-2 bg-white border border-slate-300 rounded-md placeholder-slate-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm disabled:bg-slate-50 disabled:text-slate-500 disabled:border-slate-200"
+                disabled={disabled}
+                aria-label="Height in feet"
+              />
+              <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
+                <span className="text-slate-500 sm:text-sm" id="height-unit">
+                  ft
+                </span>
+              </div>
+            </div>
+          </div>
+          {highlightHeight && <p className="text-sm text-blue-600 mt-2 animate-pulse">Please enter your height to enable generation.</p>}
+        </div>
+      </div>
+
+
+      {/* 3. Style Selection */}
       <div>
-        <h3 className="text-lg font-semibold text-slate-700 mb-3">2. Choose Your Style</h3>
+        <h3 className="text-lg font-semibold text-slate-700 mb-3">3. Choose Your Style</h3>
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
           {filteredStyles.map(style => (
             <div
@@ -137,10 +207,10 @@ const PatternSelector: React.FC<PatternSelectorProps> = ({
         </div>
       </div>
 
-      {/* 3. Sleeve Length Selection (Conditional) */}
+      {/* 4. Sleeve Length Selection (Conditional) */}
       {selectedStyle && (
         <div className="animate-fade-in">
-          <h3 className="text-lg font-semibold text-slate-700 mb-2">3. Select Sleeve Length</h3>
+          <h3 className="text-lg font-semibold text-slate-700 mb-2">4. Select Sleeve Length</h3>
           <div className="flex gap-2 p-1 bg-slate-100 rounded-lg">
             {(['short', 'long'] as SleeveLength[]).map(sl => (
               <button
@@ -158,10 +228,10 @@ const PatternSelector: React.FC<PatternSelectorProps> = ({
         </div>
       )}
 
-      {/* 4. Design Selection (Conditional) */}
+      {/* 5. Design Selection (Conditional) */}
       {selectedStyle && (
         <div className="animate-fade-in">
-          <h3 className="text-lg font-semibold text-slate-700 mb-3">4. Select Your Design</h3>
+          <h3 className="text-lg font-semibold text-slate-700 mb-3">5. Select Your Design</h3>
           {filteredDesigns.length > 0 ? (
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
               {filteredDesigns.map(design => (
@@ -184,9 +254,9 @@ const PatternSelector: React.FC<PatternSelectorProps> = ({
         </div>
       )}
 
-      {/* 5. Fabric Selection */}
+      {/* 6. Fabric Selection */}
       <div>
-        <h3 className="text-lg font-semibold text-slate-700 mb-3">5. Pick or Upload a Fabric</h3>
+        <h3 className="text-lg font-semibold text-slate-700 mb-3">6. Pick or Upload a Fabric</h3>
         <div className="flex overflow-x-auto space-x-3 pb-3">
           {allFabrics.map(fabric => (
             <div 

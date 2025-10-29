@@ -14,7 +14,8 @@ import { SparklesIcon } from './components/Icons';
 import CameraCapture from './components/CameraCapture';
 import Wardrobe from './components/Wardrobe';
 import AboutModal from './components/AboutModal';
-import { FABRICS } from './constants';
+import { FEMALE_FABRICS, MALE_FABRICS } from './constants';
+import { compressImageBase64 } from './services/imageService';
 
 const fetchImageAsBase64 = async (url: string): Promise<{ base64: string, mimeType: string }> => {
   const response = await fetch(url);
@@ -46,10 +47,12 @@ const App: React.FC = () => {
   const [userImage, setUserImage] = useState<{ base64: string; mimeType: string; } | null>(null);
   const [gender, setGender] = useState<Gender>('female');
   const [sleeveLength, setSleeveLength] = useState<SleeveLength>('short');
+  const [height, setHeight] = useState<string>('');
   
   // Results
   const [measurements, setMeasurements] = useState<Measurements | null>(null);
   const [generatedImageBase64, setGeneratedImageBase64] = useState<string | null>(null);
+  const [generatedImageMimeType, setGeneratedImageMimeType] = useState<string>('image/png');
   const [tailorFeedback, setTailorFeedback] = useState<AITailorFeedback | null>(null);
   
   // App State
@@ -58,12 +61,12 @@ const App: React.FC = () => {
   const [isWardrobeOpen, setIsWardrobeOpen] = useState<boolean>(false);
   const [isAboutModalOpen, setIsAboutModalOpen] = useState<boolean>(false);
   const [savedFits, setSavedFits] = useState<SavedFit[]>([]);
-  const [isCurrentFitSaved, setIsCurrentFitSaved] = useState<boolean>(false);
   const [viewingSavedFit, setViewingSavedFit] = useState<boolean>(false);
   
   useEffect(() => {
     const prefetchFabrics = async () => {
-      for (const fabric of FABRICS) {
+      const allDefaultFabrics = [...FEMALE_FABRICS, ...MALE_FABRICS];
+      for (const fabric of allDefaultFabrics) {
         if (!fabric.base64) {
           try {
             const { base64, mimeType } = await fetchImageAsBase64(fabric.imageUrl);
@@ -104,13 +107,20 @@ const App: React.FC = () => {
   };
   
   const handleGenerateFit = async () => {
+    const heightInFeet = parseFloat(height) || 0;
+    const totalInches = heightInFeet * 12;
+
+    if (totalInches <= 0) {
+      alert('Please enter a valid height to proceed.');
+      return;
+    }
+
     if (!selectedStyle || !selectedFabric || !userImage || !selectedDesign) return;
 
     setAppStep(AppStep.PROCESSING);
     setLoadingMessage('Estimating your measurements...');
     
-    const estimatedHeightInInches = gender === 'female' ? 65 : 70;
-    const calculatedMeasurements = await calculateMeasurements(estimatedHeightInInches, gender);
+    const calculatedMeasurements = await calculateMeasurements(totalInches, gender);
     setMeasurements(calculatedMeasurements);
     
     setLoadingMessage('Warming up the AI tailor...');
@@ -124,7 +134,41 @@ const App: React.FC = () => {
       
       setTailorFeedback(feedback);
       setGeneratedImageBase64(generatedImage);
+      setGeneratedImageMimeType('image/png'); // Image from Gemini is PNG
+
+      setLoadingMessage('Saving to your wardrobe...');
       
+      // Compress images before saving to prevent quota issues
+      const [compressedUserImageBase64, compressedGeneratedImageBase64] = await Promise.all([
+        compressImageBase64(userImage.base64, userImage.mimeType),
+        compressImageBase64(generatedImage, 'image/png')
+      ]);
+
+      // Strip large base64 data from fabric object before saving
+      const fabricToSave: Fabric = {
+          id: selectedFabric.id,
+          name: selectedFabric.name,
+          imageUrl: selectedFabric.imageUrl
+      };
+
+      const newFit: SavedFit = {
+        id: `fit_${Date.now()}`,
+        style: selectedStyle,
+        fabric: fabricToSave,
+        design: selectedDesign,
+        sleeveLength: sleeveLength,
+        measurements: calculatedMeasurements,
+        feedback: feedback,
+        userImage: {
+          base64: compressedUserImageBase64,
+          mimeType: 'image/jpeg', // Compressed to JPEG
+        },
+        generatedImageBase64: compressedGeneratedImageBase64, // Compressed to JPEG
+        createdAt: new Date().toISOString(),
+      };
+      saveFit(newFit);
+      setSavedFits(getSavedFits());
+
       setAppStep(AppStep.RESULTS);
     } catch (error) {
       console.error('Error during AI generation:', error);
@@ -143,36 +187,13 @@ const App: React.FC = () => {
     setUserImage(null);
     setMeasurements(null);
     setGeneratedImageBase64(null);
+    setGeneratedImageMimeType('image/png'); // Reset to default
     setTailorFeedback(null);
     setGender('female');
     setSleeveLength('short');
-    setIsCurrentFitSaved(false);
+    setHeight('');
     setViewingSavedFit(false);
   }, []);
-  
-  const handleSaveCurrentFit = () => {
-    if (!selectedStyle || !selectedFabric || !selectedDesign || !measurements || !tailorFeedback || !userImage || !generatedImageBase64) {
-        alert("Cannot save, essential data is missing.");
-        return;
-    }
-
-    const newFit: SavedFit = {
-        id: `fit_${Date.now()}`,
-        style: selectedStyle,
-        fabric: selectedFabric,
-        design: selectedDesign,
-        sleeveLength: sleeveLength,
-        measurements: measurements,
-        feedback: tailorFeedback,
-        userImage: userImage,
-        generatedImageBase64: generatedImageBase64,
-        createdAt: new Date().toISOString(),
-    };
-
-    saveFit(newFit);
-    setSavedFits(getSavedFits());
-    setIsCurrentFitSaved(true);
-  };
   
   const handleDeleteFit = (fitId: string) => {
     deleteFit(fitId);
@@ -184,18 +205,23 @@ const App: React.FC = () => {
     setSelectedFabric(fit.fabric);
     setSelectedDesign(fit.design);
     setSleeveLength(fit.sleeveLength);
-    setUserImage(fit.userImage);
+    setUserImage(fit.userImage); // This will have compressed base64 and jpeg mimeType
     setMeasurements(fit.measurements);
     setTailorFeedback(fit.feedback);
     setGeneratedImageBase64(fit.generatedImageBase64);
+    setGeneratedImageMimeType('image/jpeg'); // Saved images are always compressed to jpeg
     setGender(fit.style.gender);
     setAppStep(AppStep.RESULTS);
     setIsWardrobeOpen(false);
     setViewingSavedFit(true);
-    setIsCurrentFitSaved(true);
   };
 
-  const isGenerateButtonDisabled = !selectedStyle || !selectedFabric || !userImage || !selectedDesign;
+  const heightForValidation = parseFloat(height) || 0;
+  const isGenerateButtonDisabled = !selectedStyle || !selectedFabric || !userImage || !selectedDesign || heightForValidation <= 0;
+  
+  const allOtherSelectionsMade = !!(selectedStyle && selectedFabric && userImage && selectedDesign);
+  const isHeightMissing = heightForValidation <= 0;
+  const highlightHeight = allOtherSelectionsMade && isHeightMissing;
 
   if (!hasOnboarded) {
     return <Onboarding onStart={handleOnboarding} />;
@@ -219,6 +245,8 @@ const App: React.FC = () => {
               <PatternSelector
                 gender={gender}
                 onGenderChange={setGender}
+                height={height}
+                onHeightChange={setHeight}
                 selectedStyle={selectedStyle}
                 onStyleSelect={setSelectedStyle}
                 sleeveLength={sleeveLength}
@@ -227,10 +255,11 @@ const App: React.FC = () => {
                 onDesignSelect={setSelectedDesign}
                 selectedFabric={selectedFabric}
                 onFabricSelect={handleFabricSelect}
+                highlightHeight={highlightHeight}
                 disabled={appStep !== AppStep.SELECTION}
               />
               <div className="mt-6 border-t pt-6">
-                <h3 className="text-lg font-semibold text-slate-700 mb-3">6. Upload Your Photo</h3>
+                <h3 className="text-lg font-semibold text-slate-700 mb-3">7. Upload Your Photo</h3>
                 <ImageUploader onUpload={handleImageUpload} onTakePhoto={() => setIsCameraOpen(true)} disabled={appStep !== AppStep.SELECTION} />
               </div>
 
@@ -255,7 +284,7 @@ const App: React.FC = () => {
              <div className="mt-8">
                <ResultsDisplay
                 originalImage={`data:${userImage.mimeType};base64,${userImage.base64}`}
-                generatedImage={`data:image/png;base64,${generatedImageBase64}`}
+                generatedImage={`data:${generatedImageMimeType};base64,${generatedImageBase64}`}
                 feedback={tailorFeedback}
                 measurements={measurements}
                 style={selectedStyle}
@@ -264,9 +293,6 @@ const App: React.FC = () => {
                 sleeveLength={sleeveLength}
                 gender={gender}
                 onReset={handleReset}
-                onSave={handleSaveCurrentFit}
-                isSaved={isCurrentFitSaved}
-                onWardrobeClick={() => setIsWardrobeOpen(true)}
                 isSavedView={viewingSavedFit}
                 onClose={handleReset}
               />

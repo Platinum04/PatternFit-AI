@@ -3,28 +3,47 @@ import { Style, Fabric, Design } from './types';
 // NOTE: Using placeholder images for demonstration purposes.
 // In a real application, these would be high-quality, consistently styled images.
 
-export const FABRICS: Fabric[] = [
+export const FEMALE_FABRICS: Fabric[] = [
   {
-    id: 'ankara-1',
+    id: 'f-ankara-1',
     name: 'Blue Swirl Ankara',
     imageUrl: 'https://i.imgur.com/KkM4U5F.jpeg',
   },
   {
-    id: 'aso-oke-1',
+    id: 'f-aso-oke-1',
     name: 'Striped Aso-Oke',
     imageUrl: 'https://i.imgur.com/jM8kVC1.jpeg',
   },
   {
-    id: 'lace-1',
+    id: 'f-lace-1',
     name: 'White Lace',
     imageUrl: 'https://i.imgur.com/7gqQyB4.jpeg',
   },
   {
-    id: 'brocade-1',
-    name: 'Gold Brocade',
+    id: 'f-adire-1',
+    name: 'Indigo Adire',
+    imageUrl: 'https://i.imgur.com/JCRb7gY.jpeg',
+  },
+  {
+    id: 'f-guinea-1',
+    name: 'Gold Guinea Brocade',
     imageUrl: 'https://i.imgur.com/h5r8wL9.jpeg',
   },
 ];
+
+export const MALE_FABRICS: Fabric[] = [
+  {
+    id: 'm-guinea-1',
+    name: 'Rich Guinea Brocade',
+    imageUrl: 'https://i.imgur.com/5J3p8kM.jpeg',
+  },
+  {
+    id: 'm-kaftan-1',
+    name: 'Kaftan Material',
+    imageUrl: 'https://i.imgur.com/cZtYJ7P.jpeg',
+  },
+];
+
 
 export const STYLES: Style[] = [
   {

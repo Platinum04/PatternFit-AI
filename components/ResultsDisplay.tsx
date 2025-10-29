@@ -15,9 +15,6 @@ interface ResultsDisplayProps {
   onReset: () => void;
   isSavedView?: boolean;
   onClose?: () => void;
-  onSave?: () => void;
-  isSaved?: boolean;
-  onWardrobeClick?: () => void;
 }
 
 // Helper to convert a data URL to a File object for the Web Share API
@@ -40,7 +37,7 @@ const dataURLtoFile = (dataurl: string, filename: string): File | null => {
 const ResultsDisplay: React.FC<ResultsDisplayProps> = ({ 
   originalImage, generatedImage, feedback, measurements, 
   style, fabric, design, gender, onReset, isSavedView = false, onClose,
-  onSave, isSaved, sleeveLength, onWardrobeClick
+  sleeveLength
 }) => {
   const handleDownload = useCallback(() => {
     const link = document.createElement('a');
@@ -171,26 +168,6 @@ const ResultsDisplay: React.FC<ResultsDisplayProps> = ({
           <ShareIcon className="w-5 h-5" />
           Share
         </button>
-        
-        {!isSavedView && onSave && (
-          isSaved ? (
-             <button
-                onClick={onWardrobeClick}
-                className="inline-flex items-center gap-2 px-8 py-3 font-semibold rounded-lg shadow-md transition transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2 bg-green-600 text-white hover:bg-green-700 focus:ring-green-500"
-            >
-                <WardrobeIcon className="w-5 h-5" />
-                View Wardrobe
-            </button>
-          ) : (
-            <button
-              onClick={onSave}
-              className="inline-flex items-center gap-2 px-8 py-3 font-semibold rounded-lg shadow-md transition transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2 bg-slate-700 text-white hover:bg-slate-800 focus:ring-slate-500"
-            >
-              <SaveIcon className="w-5 h-5" />
-              Save Design
-            </button>
-          )
-        )}
         
         <button
           onClick={handleDownload}
