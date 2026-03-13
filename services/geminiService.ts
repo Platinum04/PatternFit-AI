@@ -28,7 +28,7 @@ const urlToGenerativePart = async (url: string, mimeType: string) => {
  * @param userImage The user's photo as a base64 string with mime type.
  * @param style The selected clothing style.
  * @param fabric The selected fabric, which must have base64 data.
- * @param design The selected embroidery or style design.
+ * @param design The selected embroidery or style design. Can be a placeholder for a "classic" look.
  * @param sleeveLength The desired sleeve length for the outfit.
  * @returns A promise that resolves to the base64 string of the generated image.
  */
@@ -45,6 +45,8 @@ export const generateVirtualTryOn = async (
     throw new Error('Fabric data is missing required base64 or mimeType for API call.');
   }
 
+  const isClassicDesign = design.id === 'classic-design';
+
   const userImagePart = {
     inlineData: {
       data: userImage.base64,
@@ -59,31 +61,36 @@ export const generateVirtualTryOn = async (
     }
   };
   
-  // The design image is a PNG from storage
-  const designImagePart = await urlToGenerativePart(design.imageUrl, 'image/png');
+  const parts: any[] = [
+    { text: "This is the user's photo:" },
+    userImagePart,
+    { text: "Use this fabric pattern:" },
+    fabricImagePart,
+  ];
+
+  let designPromptSegment = '';
+  if (isClassicDesign) {
+    designPromptSegment = `- **Design**: Create the outfit in the classic version of the style, without any extra embroidery or patterns.`;
+  } else {
+    const designImagePart = await urlToGenerativePart(design.imageUrl, 'image/png');
+    parts.push({ text: "Apply this design/embroidery:" }, designImagePart);
+    designPromptSegment = `- **Design**: Apply the embroidery or design pattern from the design image onto the outfit in a natural and stylish way (e.g., on the chest, collar, or as the design dictates).`;
+  }
 
   const prompt = `You are a world-class virtual tailor specializing in Nigerian fashion. Your task is to dress the person in the user's photo with a new, hyper-realistic outfit based on several inputs.
 - **Style**: Dress them in a "${style.name}" outfit.
 - **Sleeve Length**: The outfit must have ${sleeveLength} sleeves.
 - **Fabric**: Use the provided fabric pattern for the entire outfit.
-- **Design**: Apply the embroidery or design pattern from the design image onto the outfit in a natural and stylish way (e.g., on the chest, collar, or as the design dictates).
+${designPromptSegment}
 - **Realism**: The result must be hyper-realistic. The fabric should drape naturally on the person's body, following their contours, pose, and body shape. Shadows and lighting must be consistent with the original photo.
 - **Preservation**: Do NOT change the person's face, hair, skin tone, body shape, or the background of the image. Only replace their current clothing with the new, fully-designed outfit.
 - **Output**: The output must be only the final, edited image.`;
+  
+  parts.push({ text: prompt });
 
   const response = await ai.models.generateContent({
     model,
-    contents: {
-      parts: [
-        { text: "This is the user's photo:" },
-        userImagePart,
-        { text: "Use this fabric pattern:" },
-        fabricImagePart,
-        { text: "Apply this design/embroidery:" },
-        designImagePart,
-        { text: prompt },
-      ],
-    },
+    contents: { parts },
     config: {
       responseModalities: [Modality.IMAGE],
     },

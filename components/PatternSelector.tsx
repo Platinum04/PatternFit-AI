@@ -68,9 +68,27 @@ const PatternSelector: React.FC<PatternSelectorProps> = ({
 
   const handleStyleChange = (newStyle: Style | null) => {
     onStyleSelect(newStyle);
-    // Always reset design when style changes
-    onDesignSelect(null);
-  }
+
+    if (newStyle) {
+      const designsForStyle = DESIGNS.filter(d => d.styleId === newStyle.id);
+      if (designsForStyle.length > 0) {
+        // Auto-select the first design to ensure the form is always valid after style selection.
+        onDesignSelect(designsForStyle[0]);
+      } else {
+        // If no specific designs exist, use the "Classic" placeholder.
+        onDesignSelect({
+          id: 'classic-design',
+          name: 'Classic',
+          styleId: newStyle.id,
+          imageUrl: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=', // 1x1 transparent pixel
+        });
+      }
+    } else {
+      // If style is cleared (e.g. on gender change), clear the design.
+      onDesignSelect(null);
+    }
+  };
+
 
   const handleFabricUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
