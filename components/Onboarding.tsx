@@ -8,7 +8,7 @@ interface OnboardingProps {
 
 const Onboarding: React.FC<OnboardingProps> = ({ onStart }) => {
   return (
-    <div className="fixed inset-0 bg-premium-950/80 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fade-in">
+    <div className="fixed inset-0 bg-premium-950/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
       <div className="w-full max-w-lg mx-auto bg-premium-50 rounded-3xl shadow-2xl shadow-premium-900/50 p-8 sm:p-14 text-center transform transition-all duration-500 scale-95 hover:scale-100 border border-premium-200">
         <div className="flex justify-center mb-4">
           <Header />

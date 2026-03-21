@@ -1,9 +1,15 @@
 import { GoogleGenAI, Modality, Type } from "@google/genai";
 import { Style, Fabric, Measurements, Gender, Design, SleeveLength, AITailorFeedback } from '../types';
 
-// FIX: Initialize the GoogleGenAI client with the API key from environment variables.
-const apiKey = process.env.API_KEY || "";
-const ai = new GoogleGenAI({ apiKey });
+let aiInstance: GoogleGenAI | null = null;
+
+const getAI = () => {
+    if (!aiInstance) {
+        const apiKey = process.env.API_KEY || "";
+        aiInstance = new GoogleGenAI({ apiKey });
+    }
+    return aiInstance;
+};
 
 // Helper to fetch image and convert to a part for the Gemini API
 const urlToGenerativePart = async (url: string, mimeType: string) => {
@@ -89,7 +95,7 @@ ${designPromptSegment}
   
   parts.push({ text: prompt });
 
-  const response = await ai.models.generateContent({
+  const response = await getAI().models.generateContent({
     model,
     contents: { parts },
     config: {
@@ -147,7 +153,7 @@ Provide feedback for the following keys in your JSON response:
 - "fabricChoice": A comment (1-2 sentences) on how the ${fabric.name} fabric works with the chosen style.
 - "styleTip": A practical tip (1-2 sentences) for accessorizing or wearing the outfit.`;
 
-  const response = await ai.models.generateContent({
+  const response = await getAI().models.generateContent({
     model,
     contents: prompt,
     config: {

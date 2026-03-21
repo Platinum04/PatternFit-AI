@@ -37,6 +37,7 @@ const fetchImageAsBase64 = async (url: string): Promise<{ base64: string, mimeTy
 };
 
 const App: React.FC = () => {
+  console.log('App component is rendering...');
   const [appStep, setAppStep] = useState<AppStep>(AppStep.SELECTION);
   const [hasOnboarded, setHasOnboarded] = useState<boolean>(false);
   
