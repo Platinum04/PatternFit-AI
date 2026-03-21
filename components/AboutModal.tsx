@@ -26,14 +26,14 @@ const AboutModal: React.FC<AboutModalProps> = ({ isOpen, onClose }) => {
                     <button onClick={onClose} className="text-premium-500 hover:text-premium-800 text-3xl font-light">&times;</button>
                 </header>
                 
-                <div className="flex-grow p-6 sm:p-8 overflow-y-auto max-h-[70vh] space-y-6">
+                <div className="grow p-6 sm:p-8 overflow-y-auto max-h-[70vh] space-y-6">
                     <div>
                         <h3 className="text-lg font-semibold text-premium-700 mb-2">The Project</h3>
                         <p className="text-premium-600 leading-relaxed">
-                            <strong>PatternFit AI</strong> is a revolutionary virtual try-on application designed to eliminate the uncertainty and risk from the custom tailoring process. It addresses a common challenge in bespoke fashion: visualizing how a specific style, fabric, and design will look on <em>you</em> before it's made.
+                            <strong>PatternFit AI</strong> is the virtual tailor for the modern African wardrobe. It eliminates the guesswork and risk from the custom tailoring process by allowing you to visualize exactly how a style and fabric combination will look on you before it's made.
                         </p>
                          <p className="text-premium-600 leading-relaxed mt-2">
-                           The experience is elevated by the <strong>AI Tailor's Assessment</strong>, which provides structured, expert feedback on the overall look, fit, fabric choice, and even offers practical style tips, making every user feel like they've had a personal consultation.
+                           Our mission is to empower the bespoke fashion experience with <strong>AI-driven visualization</strong> and expert <strong>Tailor's Assessments</strong>, ensuring every custom-made garment is a perfect match for your frame and personality.
                         </p>
                     </div>
 

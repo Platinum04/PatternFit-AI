@@ -19,7 +19,7 @@ const Onboarding: React.FC<OnboardingProps> = ({ onStart }) => {
         </h1>
         
         <p className="text-premium-600 mt-6 leading-relaxed text-lg font-light">
-          Experience the magic of AI-powered virtual try-on. Select your style, pick a fabric, and see a hyper-realistic preview of your custom-fitted traditional Nigerian attire in seconds.
+          PatternFit AI is your personal virtual tailor for the modern African wardrobe. Eliminate the uncertainty of bespoke fashion by seeing your chosen style and fabric on yourself before a single stitch is sewn.
         </p>
 
         <button
