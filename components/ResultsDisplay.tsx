@@ -1,6 +1,7 @@
 import React, { useCallback } from 'react';
-import { Style, Fabric, Measurements, Gender, Design, SleeveLength, AITailorFeedback } from '../types';
-import { RulerIcon, TailorIcon, RefreshIcon, DownloadIcon, ShareIcon, SaveIcon, WardrobeIcon, LightbulbIcon, FabricIcon, BodyOutlineIcon } from './Icons';
+import { Style, Fabric, Measurements, Gender, Design, SleeveLength, AITailorFeedback, StylistComment } from '../types';
+import { RulerIcon, TailorIcon, RefreshIcon, DownloadIcon, ShareIcon, SaveIcon, WardrobeIcon, LightbulbIcon, FabricIcon, BodyOutlineIcon, SparklesIcon } from './Icons';
+import { generateTailorSpecification } from '../services/pdfService';
 
 interface ResultsDisplayProps {
   originalImage: string;
@@ -13,8 +14,9 @@ interface ResultsDisplayProps {
   sleeveLength: SleeveLength;
   gender: Gender;
   onReset: () => void;
-  isSavedView?: boolean;
-  onClose?: () => void;
+  isSavedView: boolean;
+  onClose: () => void;
+  stylistComments?: StylistComment[];
 }
 
 // Helper to convert a data URL to a File object for the Web Share API
@@ -37,7 +39,8 @@ const dataURLtoFile = (dataurl: string, filename: string): File | null => {
 const ResultsDisplay: React.FC<ResultsDisplayProps> = ({ 
   originalImage, generatedImage, feedback, measurements, 
   style, fabric, design, gender, onReset, isSavedView = false, onClose,
-  sleeveLength
+  sleeveLength,
+  stylistComments
 }) => {
   const handleDownload = useCallback(() => {
     const link = document.createElement('a');
@@ -66,6 +69,29 @@ const ResultsDisplay: React.FC<ResultsDisplayProps> = ({
         alert('Sharing is not supported on this browser.');
     }
   }, [generatedImage, style.name]);
+
+  const [isGeneratingPdf, setIsGeneratingPdf] = React.useState(false);
+  const handleGeneratePdf = async () => {
+    setIsGeneratingPdf(true);
+    try {
+        await generateTailorSpecification(
+            originalImage,
+            generatedImage,
+            measurements,
+            style,
+            fabric,
+            design,
+            sleeveLength,
+            gender,
+            feedback
+        );
+    } catch (error) {
+        console.error("Failed to generate PDF specification:", error);
+        alert("There was an error generating your tailor specification. Please try again.");
+    } finally {
+        setIsGeneratingPdf(false);
+    }
+  };
 
   const bustOrChestLabel = gender === 'female' ? 'Bust' : 'Chest';
   const measurementTitle = 'Your Estimated Measurements';
@@ -136,27 +162,44 @@ const ResultsDisplay: React.FC<ResultsDisplayProps> = ({
           </p>
           <div className="space-y-3 border-t border-premium-200 pt-3">
               <div className="flex items-start">
-                  <BodyOutlineIcon className="w-5 h-5 text-premium-900 mt-1 mr-3 flex-shrink-0" />
+                  <BodyOutlineIcon className="w-5 h-5 text-premium-900 mt-1 mr-3 shrink-0" />
                   <div>
                       <h4 className="font-semibold text-premium-900">Fit Analysis</h4>
                       <p className="text-sm text-premium-950">{feedback.fitAnalysis}</p>
                   </div>
               </div>
                <div className="flex items-start">
-                  <FabricIcon className="w-5 h-5 text-premium-900 mt-1 mr-3 flex-shrink-0" />
+                  <FabricIcon className="w-5 h-5 text-premium-900 mt-1 mr-3 shrink-0" />
                   <div>
                       <h4 className="font-semibold text-premium-900">Fabric Choice</h4>
                       <p className="text-sm text-premium-950">{feedback.fabricChoice}</p>
                   </div>
               </div>
               <div className="flex items-start">
-                  <LightbulbIcon className="w-5 h-5 text-premium-900 mt-1 mr-3 flex-shrink-0" />
+                  <LightbulbIcon className="w-5 h-5 text-premium-900 mt-1 mr-3 shrink-0" />
                   <div>
                       <h4 className="font-semibold text-premium-900">Style Tip</h4>
-                      <p className="text-sm text-premium-950">{feedback.styleTip}</p>
+                      <p className="text-premium-700 leading-relaxed italic">"{feedback.styleTip}"</p>
                   </div>
               </div>
           </div>
+
+          {stylistComments && stylistComments.length > 0 && (
+              <div className="bg-accent/5 p-6 rounded-2xl border border-accent/20 mb-8 animate-fade-in">
+                  <div className="flex items-center gap-2 mb-4">
+                      <div className="bg-accent text-white p-1 rounded-full">
+                          <SparklesIcon className="w-4 h-4" />
+                      </div>
+                      <h4 className="text-lg font-serif font-medium text-accent">Expert Stylist Consultation</h4>
+                  </div>
+                  {stylistComments.map(comment => (
+                      <div key={comment.id} className="bg-white p-4 rounded-xl shadow-sm border border-accent/10 mb-2">
+                          <p className="text-premium-800 text-sm leading-relaxed">{comment.content}</p>
+                          <p className="text-[10px] text-premium-400 mt-2 uppercase tracking-widest">{new Date(comment.createdAt).toLocaleDateString()}</p>
+                      </div>
+                  ))}
+              </div>
+          )}
         </div>
       </div>
       
@@ -168,13 +211,21 @@ const ResultsDisplay: React.FC<ResultsDisplayProps> = ({
           <ShareIcon className="w-5 h-5 opacity-70" />
           Share
         </button>
-        
         <button
           onClick={handleDownload}
           className="inline-flex items-center gap-2 px-8 py-3 bg-premium-100 text-premium-800 font-medium rounded-full shadow-md hover:bg-premium-200 transition-all duration-300 transform hover:-translate-y-1 border border-premium-200"
         >
           <DownloadIcon className="w-5 h-5 opacity-70" />
           Save Image
+        </button>
+
+        <button
+          onClick={handleGeneratePdf}
+          disabled={isGeneratingPdf}
+          className="inline-flex items-center gap-2 px-8 py-3 bg-accent text-white font-medium rounded-full shadow-lg hover:bg-accent-dark transition-all duration-300 transform hover:-translate-y-1 shadow-accent/20 disabled:opacity-50 disabled:transform-none"
+        >
+          <DownloadIcon className={`w-5 h-5 ${isGeneratingPdf ? 'animate-spin' : ''}`} />
+          {isGeneratingPdf ? 'Generating...' : 'Generate Specification'}
         </button>
         {MainActionButton}
       </div>

@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { AppStep, Style, Fabric, Gender, Measurements, SavedFit, Design, SleeveLength, AITailorFeedback } from './types';
+import { AppStep, Style, Fabric, Gender, Measurements, SavedFit, Design, SleeveLength, AITailorFeedback, Collection, StylistComment } from './types';
 import { calculateMeasurements } from './services/measurementService';
-import { generateVirtualTryOn, getAITailorFeedback } from './services/geminiService';
-import { getSavedFits, saveFit, deleteFit } from './services/wardrobeService';
+import { generateVirtualTryOn, getAITailorFeedback, estimateMeasurements } from './services/geminiService';
+import { getSavedFits, saveFit, deleteFit, getCollections, saveCollection, deleteCollection, addCommentToFit } from './services/wardrobeService';
 import Header from './components/Header';
 import StepIndicator from './components/StepIndicator';
 import PatternSelector from './components/PatternSelector';
@@ -63,6 +63,10 @@ const App: React.FC = () => {
   const [isAboutModalOpen, setIsAboutModalOpen] = useState<boolean>(false);
   const [savedFits, setSavedFits] = useState<SavedFit[]>([]);
   const [viewingSavedFit, setViewingSavedFit] = useState<boolean>(false);
+  const [isMeasuringAI, setIsMeasuringAI] = useState<boolean>(false);
+  const [isCameraOpenForMeasurement, setIsCameraOpenForMeasurement] = useState<boolean>(false);
+  const [collections, setCollections] = useState<Collection[]>([]);
+  const [activeStylistComments, setActiveStylistComments] = useState<StylistComment[]>([]);
   
   useEffect(() => {
     const prefetchFabrics = async () => {
@@ -88,6 +92,7 @@ const App: React.FC = () => {
       setHasOnboarded(true);
     }
     setSavedFits(getSavedFits());
+    setCollections(getCollections());
   }, []);
 
   const handleOnboarding = () => {
@@ -98,6 +103,25 @@ const App: React.FC = () => {
   const handleImageUpload = useCallback((file: File, base64: string, mimeType: string) => {
     setUserImage({ base64, mimeType });
   }, []);
+
+  const handleMagicMeasureCapture = async (file: File, base64: string, mimeType: string) => {
+    setIsCameraOpenForMeasurement(false);
+    setIsMeasuringAI(true);
+    setLoadingMessage('AI is analyzing your measurements...');
+    
+    try {
+        const heightInInches = parseFloat(height) * 12;
+        const estimated = await estimateMeasurements({ base64, mimeType }, gender, heightInInches);
+        setMeasurements(estimated);
+        alert("Success! Your measurements have been estimated by the AI tailor.");
+    } catch (error) {
+        console.error("AI Measurement error:", error);
+        alert("The AI couldn't accurately estimate measurements from this photo. Please try again or use manual height.");
+    } finally {
+        setIsMeasuringAI(false);
+        setLoadingMessage(null);
+    }
+  };
 
   const handleFabricSelect = (fabric: Fabric) => {
     if (!fabric.base64) {
@@ -194,14 +218,30 @@ const App: React.FC = () => {
     setSleeveLength('short');
     setHeight('');
     setViewingSavedFit(false);
+    setActiveStylistComments([]);
   }, []);
   
   const handleDeleteFit = (fitId: string) => {
     deleteFit(fitId);
     setSavedFits(getSavedFits());
   };
+
+  const handleSaveCollection = (col: Collection) => {
+      saveCollection(col);
+      setCollections(getCollections());
+  };
+
+  const handleDeleteCollection = (id: string) => {
+      deleteCollection(id);
+      setCollections(getCollections());
+  };
+
+  const handleAddComment = (fitId: string, comment: StylistComment) => {
+      addCommentToFit(fitId, comment);
+      setSavedFits(getSavedFits());
+  };
   
-  const handleViewFitFromWardrobe = (fit: SavedFit) => {
+  const handleSelectSavedFit = (fit: SavedFit) => {
     setSelectedStyle(fit.style);
     setSelectedFabric(fit.fabric);
     setSelectedDesign(fit.design);
@@ -232,7 +272,18 @@ const App: React.FC = () => {
     <div className="min-h-screen flex flex-col items-center p-4 sm:p-6 lg:p-8">
       {loadingMessage && <LoadingOverlay message={loadingMessage} />}
       {isCameraOpen && <CameraCapture onCapture={handleImageUpload} onClose={() => setIsCameraOpen(false)} />}
-      {isWardrobeOpen && <Wardrobe fits={savedFits} onClose={() => setIsWardrobeOpen(false)} onSelectFit={handleViewFitFromWardrobe} onDeleteFit={handleDeleteFit} />}
+      {isWardrobeOpen && (
+            <Wardrobe
+              fits={savedFits}
+              onClose={() => setIsWardrobeOpen(false)}
+              onSelectFit={handleSelectSavedFit}
+              onDeleteFit={handleDeleteFit}
+              collections={collections}
+              onSaveCollection={handleSaveCollection}
+              onDeleteCollection={handleDeleteCollection}
+              onAddComment={handleAddComment}
+            />
+          )}
       {isAboutModalOpen && <AboutModal isOpen={isAboutModalOpen} onClose={() => setIsAboutModalOpen(false)} />}
       
       <Header onWardrobeClick={() => setIsWardrobeOpen(true)} onAboutClick={() => setIsAboutModalOpen(true)} />
@@ -258,6 +309,8 @@ const App: React.FC = () => {
                 onFabricSelect={handleFabricSelect}
                 highlightHeight={highlightHeight}
                 disabled={appStep !== AppStep.SELECTION}
+                onMagicMeasure={() => setIsCameraOpenForMeasurement(true)}
+                isMeasuringAI={isMeasuringAI}
               />
               <div className="mt-10 border-t border-premium-100 pt-8">
                 <h3 className="text-xl font-serif font-medium text-premium-900 mb-4 tracking-wide">7. Upload Your Photo</h3>
@@ -296,6 +349,7 @@ const App: React.FC = () => {
                 onReset={handleReset}
                 isSavedView={viewingSavedFit}
                 onClose={handleReset}
+                stylistComments={activeStylistComments}
               />
              </div>
           )}

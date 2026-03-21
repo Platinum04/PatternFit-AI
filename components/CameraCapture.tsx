@@ -4,9 +4,10 @@ import { CameraIcon, RefreshIcon } from './Icons';
 interface CameraCaptureProps {
     onCapture: (file: File, base64: string, mimeType: string) => void;
     onClose: () => void;
+    message?: string;
 }
 
-const CameraCapture: React.FC<CameraCaptureProps> = ({ onCapture, onClose }) => {
+const CameraCapture: React.FC<CameraCaptureProps> = ({ onCapture, onClose, message }) => {
     const videoRef = useRef<HTMLVideoElement>(null);
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const [stream, setStream] = useState<MediaStream | null>(null);
@@ -94,7 +95,16 @@ const CameraCapture: React.FC<CameraCaptureProps> = ({ onCapture, onClose }) => 
                             {capturedImage ? (
                                 <img src={capturedImage} alt="Captured" className="w-full h-full object-contain" />
                             ) : (
-                                <video ref={videoRef} autoPlay playsInline className="w-full h-full object-cover transform -scale-x-100"></video>
+                                <>
+                                    <video ref={videoRef} autoPlay playsInline className="w-full h-full object-cover transform -scale-x-100"></video>
+                                    {message && (
+                                        <div className="absolute top-12 left-0 right-0 p-4 text-center z-20">
+                                            <span className="bg-black/60 text-white px-4 py-2 rounded-full text-sm font-medium backdrop-blur-sm shadow-lg border border-white/20">
+                                                {message}
+                                            </span>
+                                        </div>
+                                    )}
+                                </>
                             )}
                         </div>
                         <canvas ref={canvasRef} className="hidden"></canvas>

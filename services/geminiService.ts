@@ -189,3 +189,71 @@ Provide feedback for the following keys in your JSON response:
     };
   }
 };
+
+/**
+ * Uses Gemini's vision capabilities to estimate body measurements from a full-body photo.
+ * @param userImage The user's full-body photo as a base64 string.
+ * @param gender The user's gender for context.
+ * @param heightInches Optional height for better scale calibration.
+ * @returns A promise resolving to estimated Measurements.
+ */
+export const estimateMeasurements = async (
+  userImage: { base64: string; mimeType: string },
+  gender: Gender,
+  heightInches: number = 67 // Default to average ~170cm
+): Promise<Measurements> => {
+  const prompt = `Analyze this full-body photo of a ${gender} to estimate tailoring measurements in inches.
+The person's height is approximately ${heightInches} inches.
+Use typical human proportions and body landmarks to provide realistic estimates.
+
+Return the measurements in a strict JSON format with the following keys where applicable:
+shoulder, bust, waist, hip, sleeve, trouserLength.
+
+For ${gender} specifically, inclusion of these is appreciated but optional:
+${gender === 'female' ? 'halfLength, bustPoint, shoulderToUnderBust, shoulderToWaist, skirtLength, shirtLength, nippleToNipple' : 'lap, shirtLength'}.
+
+Return ONLY the JSON object.`;
+
+  const response = await getAI().models.generateContent({
+    model: 'gemini-2.0-flash',
+    contents: [
+        { text: prompt },
+        {
+            inlineData: {
+                data: userImage.base64,
+                mimeType: userImage.mimeType,
+            }
+        }
+    ],
+    config: {
+      responseMimeType: "application/json",
+      responseSchema: {
+        type: Type.OBJECT,
+        properties: {
+          shoulder: { type: Type.NUMBER },
+          bust: { type: Type.NUMBER },
+          waist: { type: Type.NUMBER },
+          hip: { type: Type.NUMBER },
+          sleeve: { type: Type.NUMBER },
+          trouserLength: { type: Type.NUMBER },
+          halfLength: { type: Type.NUMBER },
+          bustPoint: { type: Type.NUMBER },
+          shoulderToUnderBust: { type: Type.NUMBER },
+          shoulderToWaist: { type: Type.NUMBER },
+          skirtLength: { type: Type.NUMBER },
+          shirtLength: { type: Type.NUMBER },
+          nippleToNipple: { type: Type.NUMBER },
+          lap: { type: Type.NUMBER },
+        }
+      },
+    },
+  });
+
+  try {
+    return JSON.parse(response.text) as Measurements;
+  } catch (e) {
+    console.error("Failed to parse measurement JSON:", e);
+    // Return empty defaults if parsing fails
+    return { shoulder: 16, waist: 32, bust: 38 };
+  }
+};

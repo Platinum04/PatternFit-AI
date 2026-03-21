@@ -1,4 +1,4 @@
-import { SavedFit } from '../types';
+import { SavedFit, Collection, StylistComment } from '../types';
 
 const WARDROBE_STORAGE_KEY = 'patternfit_ai_wardrobe';
 const MAX_WARDROBE_ITEMS = 10; // Reduced to prevent exceeding localStorage limits
@@ -74,3 +74,38 @@ export const deleteFit = (fitId: string): void => {
         console.error("Failed to delete fit from localStorage:", error);
     }
 };
+
+const COLLECTIONS_STORAGE_KEY = 'patternfit_ai_collections';
+
+export const getCollections = (): Collection[] => {
+    try {
+        const savedData = localStorage.getItem(COLLECTIONS_STORAGE_KEY);
+        if (!savedData) return [];
+        return JSON.parse(savedData);
+    } catch (e) {
+        return [];
+    }
+};
+
+export const saveCollection = (collection: Collection): void => {
+    const existing = getCollections();
+    const updated = [collection, ...existing.filter(c => c.id !== collection.id)];
+    localStorage.setItem(COLLECTIONS_STORAGE_KEY, JSON.stringify(updated));
+};
+
+export const deleteCollection = (id: string): void => {
+    const updated = getCollections().filter(c => c.id !== id);
+    localStorage.setItem(COLLECTIONS_STORAGE_KEY, JSON.stringify(updated));
+};
+
+export const addCommentToFit = (fitId: string, comment: StylistComment): void => {
+    const fits = getSavedFits();
+    const fitIndex = fits.findIndex(f => f.id === fitId);
+    if (fitIndex > -1) {
+        const fit = fits[fitIndex];
+        const updatedComments = [...(fit.stylistComments || []), comment];
+        fits[fitIndex] = { ...fit, stylistComments: updatedComments };
+        localStorage.setItem(WARDROBE_STORAGE_KEY, JSON.stringify(fits));
+    }
+};
+

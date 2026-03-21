@@ -72,4 +72,19 @@ export interface SavedFit {
   };
   generatedImageBase64: string;
   createdAt: string;
+  stylistComments?: StylistComment[];
 }
+
+export interface StylistComment {
+  id: string;
+  author: 'Expert Stylist' | 'Community' | 'AI Tailor';
+  content: string;
+  createdAt: string;
+}
+
+export interface Collection {
+  id: string;
+  name: string;
+  fitIds: string[]; // List of SavedFit IDs
+  createdAt: string;
+}
