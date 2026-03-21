@@ -142,8 +142,8 @@ const PatternSelector: React.FC<PatternSelectorProps> = ({
   const filteredDesigns = selectedStyle ? DESIGNS.filter(d => d.styleId === selectedStyle.id) : [];
 
   const cardBaseClasses = "border-2 rounded-lg overflow-hidden cursor-pointer transition-all duration-200 transform hover:scale-105";
-  const selectedCardClasses = "border-blue-500 ring-2 ring-blue-500 shadow-lg";
-  const unselectedCardClasses = "border-slate-200 hover:border-blue-300 hover:shadow-md";
+  const selectedCardClasses = "border-premium-900 ring-2 ring-premium-900 shadow-lg";
+  const unselectedCardClasses = "border-premium-200 hover:border-premium-300 hover:shadow-md";
   const disabledCardClasses = "opacity-50 cursor-not-allowed hover:scale-100 hover:shadow-none";
 
   return (
@@ -156,15 +156,15 @@ const PatternSelector: React.FC<PatternSelectorProps> = ({
 
       {/* 1. Gender Selection */}
       <div>
-        <h3 className="text-lg font-semibold text-slate-700 mb-2">1. Select Gender</h3>
-        <div className="flex gap-2 p-1 bg-slate-100 rounded-lg">
+        <h3 className="text-xl font-serif font-medium text-premium-900 mb-4 tracking-wide">1. Select Gender</h3>
+        <div className="flex gap-2 p-1 bg-premium-100/50 rounded-xl">
           {(['female', 'male'] as Gender[]).map(g => (
             <button
               key={g}
               onClick={() => handleGenderChange(g)}
               disabled={disabled}
               className={`w-full py-2 px-4 rounded-md font-semibold transition-colors text-sm sm:text-base ${
-                gender === g ? 'bg-blue-600 text-white shadow' : 'bg-transparent text-slate-600 hover:bg-slate-200'
+                gender === g ? 'bg-premium-900 text-white shadow' : 'bg-transparent text-premium-600 hover:bg-premium-200'
               } ${disabled ? 'cursor-not-allowed' : ''}`}
             >
               {g.charAt(0).toUpperCase() + g.slice(1)}
@@ -174,11 +174,11 @@ const PatternSelector: React.FC<PatternSelectorProps> = ({
       </div>
 
       {/* 2. Height Input */}
-      <div className={`rounded-lg transition-all duration-300 ${highlightHeight ? 'bg-blue-50 ring-2 ring-blue-300 p-3 -m-3' : ''}`}>
+      <div className={`rounded-2xl transition-all duration-300 ${highlightHeight ? 'bg-premium-50 ring-2 ring-premium-300 p-4 -m-4' : ''}`}>
         <div>
-          <h3 className="text-lg font-semibold text-slate-700 mb-2">2. Enter Your Height</h3>
+          <h3 className="text-xl font-serif font-medium text-premium-900 mb-4 tracking-wide">2. Enter Your Height</h3>
           <div className="max-w-xs">
-            <label htmlFor="height" className="block text-sm font-medium text-slate-600 mb-1">Height</label>
+            <label htmlFor="height" className="block text-sm font-medium text-premium-600 mb-1">Height</label>
             <div className="relative mt-1 rounded-md shadow-sm">
               <input
                 type="number"
@@ -189,26 +189,26 @@ const PatternSelector: React.FC<PatternSelectorProps> = ({
                 min="1"
                 max="8"
                 step="0.01"
-                className="block w-full pl-3 pr-12 py-2 bg-white border border-slate-300 rounded-md placeholder-slate-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm disabled:bg-slate-50 disabled:text-slate-500 disabled:border-slate-200"
+                className="block w-full pl-3 pr-12 py-2 bg-white border border-premium-300 rounded-md placeholder-premium-400 focus:outline-none focus:ring-premium-900 focus:border-premium-900 sm:text-sm disabled:bg-premium-50 disabled:text-premium-500 disabled:border-premium-200"
                 disabled={disabled}
                 aria-label="Height in feet"
               />
               <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
-                <span className="text-slate-500 sm:text-sm" id="height-unit">
+                <span className="text-premium-500 sm:text-sm" id="height-unit">
                   ft
                 </span>
               </div>
             </div>
           </div>
-          {highlightHeight && <p className="text-sm text-blue-600 mt-2 animate-pulse">Please enter your height to enable generation.</p>}
+          {highlightHeight && <p className="text-sm text-premium-900 mt-2 animate-pulse">Please enter your height to enable generation.</p>}
         </div>
       </div>
 
 
       {/* 3. Style Selection */}
       <div>
-        <h3 className="text-lg font-semibold text-slate-700 mb-3">3. Choose Your Style</h3>
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+        <h3 className="text-xl font-serif font-medium text-premium-900 mb-4 tracking-wide">3. Choose Your Style</h3>
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-6">
           {filteredStyles.map(style => (
             <div
               key={style.id}
@@ -227,16 +227,16 @@ const PatternSelector: React.FC<PatternSelectorProps> = ({
 
       {/* 4. Sleeve Length Selection (Conditional) */}
       {selectedStyle && (
-        <div className="animate-fade-in">
-          <h3 className="text-lg font-semibold text-slate-700 mb-2">4. Select Sleeve Length</h3>
-          <div className="flex gap-2 p-1 bg-slate-100 rounded-lg">
+        <div className="animate-fade-in mt-6">
+          <h3 className="text-xl font-serif font-medium text-premium-900 mb-4 tracking-wide">4. Select Sleeve Length</h3>
+          <div className="flex gap-2 p-1 bg-premium-100/50 rounded-xl">
             {(['short', 'long'] as SleeveLength[]).map(sl => (
               <button
                 key={sl}
                 onClick={() => onSleeveLengthChange(sl)}
                 disabled={disabled}
                 className={`w-full py-2 px-4 rounded-md font-semibold transition-colors text-sm sm:text-base ${
-                  sleeveLength === sl ? 'bg-blue-600 text-white shadow' : 'bg-transparent text-slate-600 hover:bg-slate-200'
+                  sleeveLength === sl ? 'bg-premium-900 text-white shadow' : 'bg-transparent text-premium-600 hover:bg-premium-200'
                 } ${disabled ? 'cursor-not-allowed' : ''}`}
               >
                 {sl === 'short' ? 'Short Sleeve' : 'Long Sleeve'}
@@ -248,8 +248,8 @@ const PatternSelector: React.FC<PatternSelectorProps> = ({
 
       {/* 5. Design Selection (Conditional) */}
       {selectedStyle && (
-        <div className="animate-fade-in">
-          <h3 className="text-lg font-semibold text-slate-700 mb-3">5. Select Your Design</h3>
+        <div className="animate-fade-in mt-6">
+          <h3 className="text-xl font-serif font-medium text-premium-900 mb-4 tracking-wide">5. Select Your Design</h3>
           {filteredDesigns.length > 0 ? (
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
               {filteredDesigns.map(design => (
@@ -261,21 +261,21 @@ const PatternSelector: React.FC<PatternSelectorProps> = ({
                   tabIndex={disabled ? -1 : 0}
                   aria-pressed={selectedDesign?.id === design.id}
                 >
-                  <img src={design.imageUrl} alt={design.name} className="w-full h-32 sm:h-40 object-cover bg-slate-100" />
+                  <img src={design.imageUrl} alt={design.name} className="w-full h-32 sm:h-40 object-cover bg-premium-100" />
                   <p className="font-semibold text-center p-2 text-sm bg-white">{design.name}</p>
                 </div>
               ))}
             </div>
           ) : (
-             <p className="text-sm text-slate-500 p-4 bg-slate-50 rounded-lg">No specific designs available for this style. The classic look will be used.</p>
+             <p className="text-sm text-premium-500 p-4 bg-premium-50 rounded-lg">No specific designs available for this style. The classic look will be used.</p>
           )}
         </div>
       )}
 
       {/* 6. Fabric Selection */}
-      <div>
-        <h3 className="text-lg font-semibold text-slate-700 mb-3">6. Pick or Upload a Fabric</h3>
-        <div className="flex overflow-x-auto space-x-3 pb-3">
+      <div className="mt-8">
+        <h3 className="text-xl font-serif font-medium text-premium-900 mb-4 tracking-wide">6. Pick or Upload a Fabric</h3>
+        <div className="flex overflow-x-auto space-x-4 pb-4">
           {allFabrics.map(fabric => (
             <div 
               key={fabric.id} 
@@ -293,7 +293,7 @@ const PatternSelector: React.FC<PatternSelectorProps> = ({
           ))}
           <label 
             htmlFor="fabric-upload" 
-            className={`flex flex-col items-center justify-center h-24 w-24 flex-shrink-0 rounded-lg border-2 border-dashed cursor-pointer transition-colors ${disabled ? 'bg-slate-100 border-slate-300 text-slate-400 cursor-not-allowed' : 'bg-slate-50 border-slate-300 text-slate-500 hover:bg-slate-100 hover:border-blue-300'}`}
+            className={`flex flex-col items-center justify-center h-24 w-24 flex-shrink-0 rounded-lg border-2 border-dashed cursor-pointer transition-colors ${disabled ? 'bg-premium-100 border-premium-300 text-premium-400 cursor-not-allowed' : 'bg-premium-50 border-premium-300 text-premium-500 hover:bg-premium-100 hover:border-premium-300'}`}
           >
             <UploadIcon className="w-6 h-6" />
             <span className="text-xs font-semibold mt-1 text-center">Upload</span>

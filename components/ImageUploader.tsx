@@ -53,10 +53,10 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ onUpload, onTakePhoto, di
       <div className="flex flex-col sm:flex-row gap-2">
          <label
             htmlFor="image-upload"
-            className={`flex-1 w-full flex flex-col items-center justify-center p-4 border-2 border-dashed rounded-lg cursor-pointer transition-colors
+            className={`flex-1 w-full flex flex-col items-center justify-center p-6 border-2 border-dashed rounded-2xl cursor-pointer transition-all duration-300
             ${disabled
-              ? 'bg-slate-100 border-slate-300 text-slate-400 cursor-not-allowed'
-              : 'bg-blue-50 border-blue-300 text-blue-600 hover:bg-blue-100 hover:border-blue-400'
+              ? 'bg-premium-100/50 border-premium-200 text-premium-400 cursor-not-allowed'
+              : 'bg-premium-50/50 border-premium-300 text-premium-900 hover:bg-premium-100/50 hover:border-premium-900/50'
             }`}
           >
             <UploadIcon className="w-8 h-8 mb-2" />
@@ -75,17 +75,17 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ onUpload, onTakePhoto, di
             type="button"
             onClick={onTakePhoto}
             disabled={disabled}
-            className={`flex-1 w-full flex flex-col items-center justify-center p-4 border-2 border-dashed rounded-lg cursor-pointer transition-colors
+            className={`flex-1 w-full flex flex-col items-center justify-center p-6 border-2 border-dashed rounded-2xl cursor-pointer transition-all duration-300
             ${disabled
-              ? 'bg-slate-100 border-slate-300 text-slate-400 cursor-not-allowed'
-              : 'bg-blue-50 border-blue-300 text-blue-600 hover:bg-blue-100 hover:border-blue-400'
+              ? 'bg-premium-100/50 border-premium-200 text-premium-400 cursor-not-allowed'
+              : 'bg-premium-50/50 border-premium-300 text-premium-900 hover:bg-premium-100/50 hover:border-premium-900/50'
             }`}
           >
               <CameraIcon className="w-8 h-8 mb-2" />
               <span className="font-semibold text-sm text-center">Take a photo</span>
           </button>
       </div>
-       {fileName && <p className="text-xs text-slate-500 mt-2 text-center">Selected: {fileName}</p>}
+       {fileName && <p className="text-xs text-premium-500 mt-2 text-center">Selected: {fileName}</p>}
       {error && <p className="text-sm text-red-600 mt-2">{error}</p>}
     </div>
   );

@@ -18,28 +18,28 @@ const AboutModal: React.FC<AboutModalProps> = ({ isOpen, onClose }) => {
                 className="w-full max-w-2xl bg-white rounded-2xl shadow-2xl flex flex-col overflow-hidden"
                 onClick={e => e.stopPropagation()}
             >
-                <header className="flex items-center justify-between p-4 sm:p-6 border-b border-slate-200 bg-slate-50">
+                <header className="flex items-center justify-between p-4 sm:p-6 border-b border-premium-200 bg-premium-50">
                     <div className="flex items-center gap-3">
-                        <SparklesIcon className="w-8 h-8 text-blue-600" />
-                        <h2 className="text-xl sm:text-2xl font-bold text-slate-800">About PatternFit AI</h2>
+                        <SparklesIcon className="w-8 h-8 text-premium-900" />
+                        <h2 className="text-xl sm:text-2xl font-bold text-premium-800">About PatternFit AI</h2>
                     </div>
-                    <button onClick={onClose} className="text-slate-500 hover:text-slate-800 text-3xl font-light">&times;</button>
+                    <button onClick={onClose} className="text-premium-500 hover:text-premium-800 text-3xl font-light">&times;</button>
                 </header>
                 
                 <div className="flex-grow p-6 sm:p-8 overflow-y-auto max-h-[70vh] space-y-6">
                     <div>
-                        <h3 className="text-lg font-semibold text-slate-700 mb-2">The Project</h3>
-                        <p className="text-slate-600 leading-relaxed">
+                        <h3 className="text-lg font-semibold text-premium-700 mb-2">The Project</h3>
+                        <p className="text-premium-600 leading-relaxed">
                             <strong>PatternFit AI</strong> is a revolutionary virtual try-on application designed to eliminate the uncertainty and risk from the custom tailoring process. It addresses a common challenge in bespoke fashion: visualizing how a specific style, fabric, and design will look on <em>you</em> before it's made.
                         </p>
-                         <p className="text-slate-600 leading-relaxed mt-2">
+                         <p className="text-premium-600 leading-relaxed mt-2">
                            The experience is elevated by the <strong>AI Tailor's Assessment</strong>, which provides structured, expert feedback on the overall look, fit, fabric choice, and even offers practical style tips, making every user feel like they've had a personal consultation.
                         </p>
                     </div>
 
                     <div>
-                        <h3 className="text-lg font-semibold text-slate-700 mb-2">Built With</h3>
-                        <ul className="list-disc list-inside text-slate-600 space-y-2">
+                        <h3 className="text-lg font-semibold text-premium-700 mb-2">Built With</h3>
+                        <ul className="list-disc list-inside text-premium-600 space-y-2">
                             <li><strong>Frontend:</strong> A responsive and modern user interface built with <strong>React</strong> and styled using <strong>Tailwind CSS</strong>.</li>
                             <li>
                                 <strong>Generative AI:</strong> Powered by the <strong>Google Gemini API</strong>.

@@ -15,11 +15,11 @@ const LoadingSpinner: React.FC = () => (
 
 const LoadingOverlay: React.FC<LoadingOverlayProps> = ({ message }) => {
     return (
-        <div className="fixed inset-0 bg-slate-900 bg-opacity-75 flex flex-col items-center justify-center z-50 transition-opacity duration-300">
+        <div className="fixed inset-0 bg-premium-900 bg-opacity-75 flex flex-col items-center justify-center z-50 transition-opacity duration-300">
             <div className="text-center">
                 <LoadingSpinner />
                 <p className="mt-4 text-xl font-semibold text-white">{message}</p>
-                <p className="mt-2 text-slate-300">This may take a moment...</p>
+                <p className="mt-2 text-premium-300">This may take a moment...</p>
             </div>
         </div>
     );

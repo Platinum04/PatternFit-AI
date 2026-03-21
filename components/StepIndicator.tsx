@@ -10,30 +10,30 @@ interface StepIndicatorProps {
 const Step: React.FC<{ stepNumber: number; label: string; isActive: boolean; isCompleted: boolean }> = ({ stepNumber, label, isActive, isCompleted }) => {
   const getStepClasses = () => {
     if (isActive) {
-      return 'border-blue-500 bg-blue-50 text-blue-600';
+      return 'border-premium-900 bg-premium-50 text-premium-900';
     }
     if (isCompleted) {
       return 'border-green-400 bg-green-50 text-green-700';
     }
-    return 'border-slate-200 bg-slate-50 text-slate-500';
+    return 'border-premium-200 bg-premium-50 text-premium-500';
   };
 
   const getCircleClasses = () => {
     if (isActive) {
-      return 'bg-blue-500 text-white';
+      return 'bg-premium-900 text-white';
     }
     if (isCompleted) {
       return 'bg-green-500 text-white';
     }
-    return 'bg-slate-200 text-slate-600';
+    return 'bg-premium-200 text-premium-600';
   };
 
   return (
-    <div className={`flex-1 flex items-center p-3 rounded-lg border-2 transition-all duration-300 ${getStepClasses()}`}>
-      <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm mr-3 transition-colors duration-300 ${getCircleClasses()}`}>
+    <div className={`flex-1 flex items-center p-3 sm:p-4 rounded-2xl border transition-all duration-300 ${getStepClasses()}`}>
+      <div className={`w-10 h-10 rounded-full flex items-center justify-center font-medium text-sm mr-4 transition-colors duration-300 ${getCircleClasses()}`}>
         {isCompleted ? <CheckIcon className="w-5 h-5" /> : stepNumber}
       </div>
-      <span className="font-semibold">{label}</span>
+      <span className="font-serif text-lg tracking-wide">{label}</span>
     </div>
   );
 };

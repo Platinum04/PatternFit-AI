@@ -21,30 +21,30 @@ const Wardrobe: React.FC<WardrobeProps> = ({ fits, onClose, onSelectFit, onDelet
   return (
     <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 p-4 animate-fade-in" onClick={onClose}>
       <div 
-        className="w-full max-w-4xl h-[90vh] bg-white rounded-2xl shadow-2xl flex flex-col"
+        className="w-full max-w-4xl h-[90vh] bg-premium-50 rounded-3xl shadow-2xl flex flex-col border border-premium-200"
         onClick={e => e.stopPropagation()}
       >
-        <header className="flex items-center justify-between p-4 sm:p-6 border-b border-slate-200">
+        <header className="flex items-center justify-between p-4 sm:p-6 border-b border-premium-200">
           <div className="flex items-center gap-3">
-            <WardrobeIcon className="w-8 h-8 text-blue-600" />
-            <h2 className="text-2xl font-bold text-slate-800">My Virtual Wardrobe</h2>
+            <WardrobeIcon className="w-8 h-8 text-accent" />
+            <h2 className="text-3xl font-serif text-premium-900 tracking-wide">My Virtual Wardrobe</h2>
           </div>
-          <button onClick={onClose} className="text-slate-500 hover:text-slate-800 text-3xl font-light">&times;</button>
+          <button onClick={onClose} className="text-premium-500 hover:text-premium-800 text-3xl font-light">&times;</button>
         </header>
         
         <div className="flex-grow p-4 sm:p-6 overflow-y-auto">
           {fits.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-full text-center">
-              <WardrobeIcon className="w-24 h-24 text-slate-300" />
-              <h3 className="mt-4 text-xl font-semibold text-slate-600">Your wardrobe is empty.</h3>
-              <p className="mt-2 text-slate-500">Generate a new fitting and save it to see it in your wardrobe.</p>
+              <WardrobeIcon className="w-24 h-24 text-premium-300" />
+              <h3 className="mt-4 text-xl font-semibold text-premium-600">Your wardrobe is empty.</h3>
+              <p className="mt-2 text-premium-500">Generate a new fitting and save it to see it in your wardrobe.</p>
             </div>
           ) : (
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
               {fits.map(fit => (
                 <div 
                   key={fit.id} 
-                  className="group relative rounded-lg overflow-hidden cursor-pointer shadow-md hover:shadow-xl transition-shadow duration-300"
+                  className="group relative rounded-2xl overflow-hidden cursor-pointer shadow-md hover:shadow-xl transition-shadow duration-300 border border-premium-200"
                   onClick={() => onSelectFit(fit)}
                 >
                   <img 
@@ -54,7 +54,7 @@ const Wardrobe: React.FC<WardrobeProps> = ({ fits, onClose, onSelectFit, onDelet
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent flex flex-col justify-end p-3">
                     <p className="font-bold text-white text-sm truncate">{fit.style.name}</p>
-                    <p className="text-xs text-slate-200 truncate">{new Date(fit.createdAt).toLocaleDateString()}</p>
+                    <p className="text-xs text-premium-200 truncate">{new Date(fit.createdAt).toLocaleDateString()}</p>
                   </div>
                   <button 
                     onClick={(e) => handleDelete(e, fit.id)} 

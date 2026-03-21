@@ -237,11 +237,11 @@ const App: React.FC = () => {
       <Header onWardrobeClick={() => setIsWardrobeOpen(true)} onAboutClick={() => setIsAboutModalOpen(true)} />
       
       <main className="w-full max-w-4xl mt-8">
-        <div className="bg-white p-6 sm:p-8 rounded-2xl shadow-lg">
+        <div className="bg-white p-6 sm:p-10 rounded-3xl shadow-xl shadow-premium-900/5 border border-premium-100">
           <StepIndicator currentStep={appStep} />
 
           {appStep === AppStep.SELECTION && (
-            <div className="mt-8">
+            <div className="mt-10">
               <PatternSelector
                 gender={gender}
                 onGenderChange={setGender}
@@ -258,19 +258,19 @@ const App: React.FC = () => {
                 highlightHeight={highlightHeight}
                 disabled={appStep !== AppStep.SELECTION}
               />
-              <div className="mt-6 border-t pt-6">
-                <h3 className="text-lg font-semibold text-slate-700 mb-3">7. Upload Your Photo</h3>
+              <div className="mt-10 border-t border-premium-100 pt-8">
+                <h3 className="text-xl font-serif font-medium text-premium-900 mb-4 tracking-wide">7. Upload Your Photo</h3>
                 <ImageUploader onUpload={handleImageUpload} onTakePhoto={() => setIsCameraOpen(true)} disabled={appStep !== AppStep.SELECTION} />
               </div>
 
-              <div className="mt-8 text-center">
+              <div className="mt-12 text-center">
                 <button
                   onClick={handleGenerateFit}
                   disabled={isGenerateButtonDisabled}
-                  className={`inline-flex items-center gap-3 px-12 py-4 font-bold text-lg rounded-lg shadow-lg transition-all transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500
+                  className={`inline-flex items-center gap-3 px-12 py-4 font-medium text-lg rounded-full shadow-lg transition-all duration-300 transform hover:-translate-y-1 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-premium-900
                     ${isGenerateButtonDisabled
-                      ? 'bg-slate-300 text-slate-500 cursor-not-allowed'
-                      : 'bg-blue-600 text-white hover:bg-blue-700'
+                      ? 'bg-premium-100 text-premium-400 cursor-not-allowed shadow-none'
+                      : 'bg-premium-900 text-white hover:bg-premium-800 hover:shadow-premium-900/30'
                     }`}
                 >
                   <SparklesIcon className="w-6 h-6" />
