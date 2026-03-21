@@ -2,7 +2,8 @@ import { GoogleGenAI, Modality, Type } from "@google/genai";
 import { Style, Fabric, Measurements, Gender, Design, SleeveLength, AITailorFeedback } from '../types';
 
 // FIX: Initialize the GoogleGenAI client with the API key from environment variables.
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+const apiKey = process.env.API_KEY || "";
+const ai = new GoogleGenAI({ apiKey });
 
 // Helper to fetch image and convert to a part for the Gemini API
 const urlToGenerativePart = async (url: string, mimeType: string) => {

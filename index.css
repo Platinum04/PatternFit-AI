@@ -1,6 +1,35 @@
-/* PatternFit AI - Premium Fashion Platform Styles */
+@import "tailwindcss";
 
-/* Smooth fade-in animation */
+/* ===== Custom Theme for PatternFit AI ===== */
+@theme {
+  /* Premium Neutral Palette */
+  --color-premium-50: #fcfcfc;
+  --color-premium-100: #f5f5f5;
+  --color-premium-200: #e5e5e5;
+  --color-premium-300: #d4d4d4;
+  --color-premium-400: #a3a3a3;
+  --color-premium-500: #737373;
+  --color-premium-600: #525252;
+  --color-premium-700: #404040;
+  --color-premium-800: #262626;
+  --color-premium-900: #171717;
+  --color-premium-950: #0a0a0a;
+
+  /* Warm Accent Palette */
+  --color-accent-light: #e6c8b3;
+  --color-accent: #c59a7c;
+  --color-accent-dark: #8b664d;
+
+  /* Typography */
+  --font-sans: 'Inter', sans-serif;
+  --font-serif: 'Bodoni Moda', serif;
+
+  /* Animations */
+  --animate-fade-in: fadeIn 0.4s ease-out forwards;
+  --animate-spin: spin 1s linear infinite;
+}
+
+/* ===== Keyframes ===== */
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -12,54 +41,35 @@
   }
 }
 
-.animate-fade-in {
-  animation: fadeIn 0.4s ease-out forwards;
+/* ===== Global Styles ===== */
+body {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-/* Subtle shimmer effect for premium feel */
-@keyframes shimmer {
-  0% {
-    background-position: -200% center;
-  }
-  100% {
-    background-position: 200% center;
-  }
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
 }
-
-/* Premium card hover effect */
-.card-hover {
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+::-webkit-scrollbar-track {
+  background: #f5f5f5;
 }
-
-.card-hover:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 12px 24px -8px rgba(23, 23, 23, 0.12);
+::-webkit-scrollbar-thumb {
+  background: #d4d4d4;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #a3a3a3;
 }
 
 /* Glass morphism utility */
-.glass {
+.glass-effect {
   background: rgba(255, 255, 255, 0.85);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
 }
 
-/* Smooth scrollbar for overflow containers */
-.smooth-scroll {
-  scroll-behavior: smooth;
-  -webkit-overflow-scrolling: touch;
-}
-
-/* Focus ring style consistent with premium palette */
+/* Focus ring */
 *:focus-visible {
   outline: 2px solid #171717;
   outline-offset: 2px;
-}
-
-/* Hide scrollbar for fabric selector horizontal scroll */
-.hide-scrollbar::-webkit-scrollbar {
-  display: none;
-}
-.hide-scrollbar {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
 }
