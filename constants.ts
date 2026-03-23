@@ -85,30 +85,30 @@ export const DESIGNS: Design[] = [
     id: 'f-design-1',
     name: 'Floral Detailing',
     styleId: 'f-gown',
-    imageUrl: 'https://i.imgur.com/eBf2g4U.png',
+    imageUrl: `${ART_BASE}/patternfit_logo_premium_1774086213490.png`,
   },
   {
     id: 'f-design-2',
     name: 'Geometric Contrast',
     styleId: 'f-buba-iro',
-    imageUrl: 'https://i.imgur.com/1gH8jMh.png',
+    imageUrl: `${ART_BASE}/patternfit_logo_premium_1774086213490.png`,
   },
   {
     id: 'm-design-1',
     name: 'Classic Embroidery',
     styleId: 'm-agbada',
-    imageUrl: 'https://i.imgur.com/z2xYg0n.png',
+    imageUrl: `${ART_BASE}/patternfit_logo_premium_1774086213490.png`,
   },
   {
     id: 'm-design-2',
     name: 'Modern Panel',
     styleId: 'm-agbada',
-    imageUrl: 'https://i.imgur.com/s6v4tXf.png',
+    imageUrl: `${ART_BASE}/patternfit_logo_premium_1774086213490.png`,
   },
   {
     id: 'm-design-3',
     name: 'Minimal Detail',
     styleId: 'm-kaftan',
-    imageUrl: 'https://i.imgur.com/eBf2g4U.png',
+    imageUrl: `${ART_BASE}/patternfit_logo_premium_1774086213490.png`,
   }
 ];

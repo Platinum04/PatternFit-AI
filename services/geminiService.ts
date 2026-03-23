@@ -6,7 +6,8 @@ let aiInstance: GoogleGenAI | null = null;
 const getAI = () => {
     if (!aiInstance) {
         // Use the key injected by Vite via 'define' in vite.config.ts
-        const apiKey = (typeof process !== 'undefined' ? process.env.API_KEY : '') || '';
+        // In Vite, process.env.API_KEY is replaced inline during the build.
+        const apiKey = process.env.API_KEY || '';
         
         const isPlaceholder = apiKey === "YOUR_GEMINI_API_KEY_HERE" || !apiKey;
         
@@ -56,11 +57,7 @@ export const generateVirtualTryOn = async (
 ): Promise<string> => {
   const model = 'gemini-2.5-flash-image';
   
-  if (!fabric.base64 || !fabric.mimeType) {
-    throw new Error('Fabric data is missing required base64 or mimeType for API call.');
-  }
-
-  const isClassicDesign = design.id === 'classic-design';
+  const isClassicDesign = design.id.startsWith('classic-');
 
   const userImagePart = {
     inlineData: {
@@ -69,12 +66,19 @@ export const generateVirtualTryOn = async (
     },
   };
 
-  const fabricImagePart = {
-    inlineData: {
-      data: fabric.base64,
-      mimeType: fabric.mimeType,
-    }
-  };
+  let fabricImagePart;
+  if (fabric.base64 && fabric.mimeType) {
+    fabricImagePart = {
+      inlineData: {
+        data: fabric.base64,
+        mimeType: fabric.mimeType,
+      }
+    };
+  } else if (fabric.imageUrl) {
+    fabricImagePart = await urlToGenerativePart(fabric.imageUrl, 'image/png');
+  } else {
+    throw new Error('Fabric data is missing required base64 or imageUrl for API call.');
+  }
   
   const parts: any[] = [
     { text: "This is the user's photo:" },

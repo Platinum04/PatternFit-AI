@@ -124,8 +124,9 @@ const App: React.FC = () => {
   };
 
   const handleFabricSelect = (fabric: Fabric) => {
-    if (!fabric.base64) {
-      console.error("Selected fabric is missing base64 data.");
+    // Note: Studio fabrics from constants won't have base64 yet, geminiService will resolve their URLs.
+    if (!fabric.base64 && !fabric.imageUrl) {
+      console.error("Selected fabric is missing data source.");
       return;
     }
     setSelectedFabric(fabric);
