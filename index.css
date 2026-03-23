@@ -3,21 +3,21 @@
 /* ===== Custom Theme for PatternFit AI ===== */
 @theme {
   /* Workstation Neutral Palette (Cooler & Professional) */
-  --color-studio-50: #fbfbfb;
-  --color-studio-100: #f0f1f3;
-  --color-studio-200: #e2e4e7;
-  --color-studio-300: #d1d5db;
-  --color-studio-400: #9ca3af;
-  --color-studio-500: #6b7280;
-  --color-studio-600: #4b5563;
-  --color-studio-700: #374151;
-  --color-studio-800: #1f2937;
-  --color-studio-900: #111827;
+  --color-studio-50: #ffffff;
+  --color-studio-100: #fafafa;
+  --color-studio-200: #e5e5e5;
+  --color-studio-300: #d4d4d4;
+  --color-studio-400: #a3a3a3;
+  --color-studio-500: #737373;
+  --color-studio-600: #525252;
+  --color-studio-700: #404040;
+  --color-studio-800: #262626;
+  --color-studio-900: #111111;
 
-  /* Sharp Accents (Like CLO 3D) */
+  /* Sharp Accents (Editorial Monochrome) */
   --color-accent: #000000;
   --color-accent-soft: #f4f4f4;
-  --color-brand: #6366f1; /* Professional Indigo */
+  --color-brand: #111111; /* Sophisticated Obsidian */
 
   /* Typography (Focus on Clarity & Precision) */
   --font-sans: 'Inter', system-ui, -apple-system, sans-serif;

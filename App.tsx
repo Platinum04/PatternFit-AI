@@ -291,11 +291,11 @@ const App: React.FC = () => {
       <Header onWardrobeClick={() => setIsWardrobeOpen(true)} onAboutClick={() => setIsAboutModalOpen(true)} />
       
       <main className="w-full max-w-5xl">
-        <div className="bg-white p-6 sm:p-12 rounded-4xl shadow-2xl shadow-studio-900/10 border border-studio-200/50">
+        <div className="bg-white p-8 sm:p-16 border border-studio-200 shadow-sm rounded-sm">
           <StepIndicator currentStep={appStep} />
 
           {appStep === AppStep.SELECTION && (
-            <div className="mt-12">
+            <div className="mt-16">
               <PatternSelector
                 gender={gender}
                 onGenderChange={setGender}
@@ -314,23 +314,23 @@ const App: React.FC = () => {
                 onMagicMeasure={() => setIsCameraOpenForMeasurement(true)}
                 isMeasuringAI={isMeasuringAI}
               />
-              <div className="mt-12 border-t border-studio-100 pt-10">
-                <h3 className="text-xl font-serif font-medium text-studio-900 mb-6 tracking-wide">7. CLIENT REFERENCE PHOTO</h3>
+              <div className="mt-16 border-t border-studio-100 pt-16">
+                <h3 className="text-xl font-serif font-medium text-studio-900 mb-8 tracking-wide italic">7. Client Snapshot</h3>
                 <ImageUploader onUpload={handleImageUpload} onTakePhoto={() => setIsCameraOpen(true)} disabled={appStep !== AppStep.SELECTION} />
               </div>
 
-              <div className="mt-14 text-center">
+              <div className="mt-20 text-center">
                 <button
                   onClick={handleGenerateFit}
                   disabled={isGenerateButtonDisabled}
-                  className={`inline-flex items-center gap-3 px-16 py-5 font-bold text-sm tracking-[0.2em] rounded-full shadow-2xl transition-all duration-500 transform hover:-translate-y-1 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand uppercase
+                  className={`inline-flex items-center gap-4 px-16 py-5 font-black text-[11px] tracking-[0.3em] transition-all duration-500 uppercase rounded-sm border border-transparent
                     ${isGenerateButtonDisabled
-                      ? 'bg-studio-200 text-studio-400 cursor-not-allowed shadow-none'
-                      : 'bg-accent text-white hover:bg-studio-900 hover:shadow-studio-900/30 active:scale-95'
+                      ? 'bg-studio-100 text-studio-400 border-studio-200 cursor-not-allowed'
+                      : 'bg-studio-900 text-white hover:bg-white hover:text-studio-900 hover:border-studio-900 active:scale-95'
                     }`}
                 >
-                  <SparklesIcon className="w-5 h-5" />
-                  GENERATE STUDIO FITTING
+                  <SparklesIcon className="w-4 h-4" />
+                  Generate Studio Fitting
                 </button>
               </div>
             </div>

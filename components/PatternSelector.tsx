@@ -141,9 +141,9 @@ const PatternSelector: React.FC<PatternSelectorProps> = ({
   const filteredStyles = STYLES.filter(s => s.gender === gender);
   const filteredDesigns = selectedStyle ? DESIGNS.filter(d => d.styleId === selectedStyle.id) : [];
 
-  const cardBaseClasses = "border rounded-2xl overflow-hidden cursor-pointer transition-all duration-300 transform hover:scale-[1.02] active:scale-95 shadow-sm";
-  const selectedCardClasses = "border-studio-900 ring-4 ring-studio-900 shadow-2xl z-10 scale-[1.04]";
-  const unselectedCardClasses = "border-studio-200 bg-white hover:border-studio-400 hover:shadow-lg";
+  const cardBaseClasses = "border-2 border-transparent bg-studio-50 overflow-hidden cursor-pointer transition-all duration-300 transform hover:border-studio-200";
+  const selectedCardClasses = "border-[#111111] bg-white z-10 shadow-md";
+  const unselectedCardClasses = "hover:shadow-sm";
   const disabledCardClasses = "opacity-40 cursor-not-allowed grayscale filter";
 
   return (
@@ -156,15 +156,15 @@ const PatternSelector: React.FC<PatternSelectorProps> = ({
 
       {/* 1. Gender Selection */}
       <div className="animate-fade">
-        <h3 className="text-xs font-bold text-studio-400 mb-4 tracking-[0.3em] uppercase">01. GENDER CONTEXT</h3>
-        <div className="flex gap-2 p-1.5 bg-studio-100 rounded-2xl max-w-sm border border-studio-200">
+        <h3 className="text-[10px] font-black tracking-widest uppercase text-studio-400 mb-4 border-b border-studio-200 pb-2">01. Gender Context</h3>
+        <div className="flex gap-4">
           {(['female', 'male'] as Gender[]).map(g => (
             <button
               key={g}
               onClick={() => handleGenderChange(g)}
               disabled={disabled}
-              className={`w-full py-2.5 px-6 rounded-xl font-bold transition-all text-xs tracking-widest uppercase ${
-                gender === g ? 'bg-studio-900 text-white shadow-xl scale-105' : 'bg-transparent text-studio-500 hover:bg-studio-200'
+              className={`py-3 px-8 text-[10px] font-black tracking-widest uppercase transition-all rounded-[2px] border ${
+                gender === g ? 'bg-[#111111] text-white border-[#111111]' : 'bg-transparent text-studio-500 border-studio-200 hover:border-[#111111]'
               } ${disabled ? 'cursor-not-allowed opacity-50' : ''}`}
             >
               {g}
@@ -174,8 +174,8 @@ const PatternSelector: React.FC<PatternSelectorProps> = ({
       </div>
 
       {/* 2. Height & AI Measure */}
-      <div className={`p-6 rounded-4xl transition-all duration-500 border border-transparent ${highlightHeight ? 'bg-studio-50 border-brand/20 shadow-xl shadow-brand/5' : ''}`}>
-        <h3 className="text-xs font-bold text-studio-400 mb-4 tracking-[0.3em] uppercase">02. SCALE & PROPORTION</h3>
+      <div className={`p-6 transition-all duration-500 border rounded-[2px] ${highlightHeight ? 'bg-studio-50 border-[#111111]' : 'border-studio-100 bg-white'}`}>
+        <h3 className="text-[10px] font-black tracking-widest uppercase text-studio-400 mb-4 border-b border-studio-200 pb-2">02. Scale & Proportion</h3>
         <div className="flex flex-col sm:flex-row items-start sm:items-end gap-6">
             <div className="w-full sm:w-40">
                 <label htmlFor="height" className="block text-[10px] font-black text-studio-500 mb-2 tracking-widest uppercase italic">Base Height (ft)</label>
@@ -189,7 +189,7 @@ const PatternSelector: React.FC<PatternSelectorProps> = ({
                     min="1"
                     max="8"
                     step="0.01"
-                    className="block w-full pl-5 pr-10 py-3.5 bg-studio-50 border-studio-200 rounded-xl placeholder-studio-300 text-studio-900 font-mono focus:outline-none focus:ring-2 focus:ring-brand focus:border-brand transition-all border-2"
+                    className="block w-full pl-5 pr-10 py-3.5 bg-studio-50 border border-studio-200 rounded-[2px] placeholder-studio-300 text-studio-900 font-mono focus:outline-none focus:border-[#111111] transition-all"
                     disabled={disabled}
                   />
                   <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-4">
@@ -202,34 +202,33 @@ const PatternSelector: React.FC<PatternSelectorProps> = ({
               type="button"
               onClick={onMagicMeasure}
               disabled={disabled || !height || isMeasuringAI}
-              className={`inline-flex items-center gap-3 px-8 py-3.5 h-[52px] text-xs font-black tracking-widest rounded-xl transition-all uppercase
+              className={`inline-flex items-center gap-3 px-8 py-3.5 h-[52px] text-[10px] font-black tracking-widest rounded-[2px] transition-all uppercase border
                 ${(disabled || !height || isMeasuringAI)
-                  ? 'bg-studio-200 text-studio-400 cursor-not-allowed border border-studio-300'
-                  : 'bg-studio-900 text-white hover:bg-brand shadow-2xl hover:shadow-brand/20 active:scale-95'
+                  ? 'bg-studio-100 text-studio-400 cursor-not-allowed border-studio-200'
+                  : 'bg-white text-[#111111] border-[#111111] hover:bg-[#111111] hover:text-white'
                 }`}
             >
               <SparklesIcon className={`w-4 h-4 ${isMeasuringAI ? 'animate-spin' : ''}`} />
-              {isMeasuringAI ? 'ANALYZING...' : 'MAGIC MEASURE'}
+              {isMeasuringAI ? 'Analyzing' : 'Magic Measure'}
             </button>
         </div>
-        {!height && <p className="text-[10px] text-studio-400 mt-4 tracking-tighter italic">Required for AI measurement calculations.</p>}
-        {highlightHeight && <p className="text-sm text-brand mt-4 animate-pulse font-bold tracking-tight">ACTION REQUIRED: Specifiy base height.</p>}
+        {!height && <p className="text-[10px] text-studio-400 mt-4 tracking-[-0.05em] uppercase border-l-2 border-studio-200 pl-3">Requires explicit base height definition.</p>}
+        {highlightHeight && <p className="text-[10px] text-red-600 mt-4 tracking-widest uppercase font-black uppercase border-l-2 border-red-600 pl-3">Target specification required: Base height.</p>}
       </div>
 
       {/* 3. Style Selection */}
-      <div className="animate-fade pt-4">
-        <h3 className="text-xs font-bold text-studio-400 mb-6 tracking-[0.3em] uppercase">03. BASE SILHOUETTE</h3>
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-8">
+      <div className="animate-fade pt-8">
+        <h3 className="text-[10px] font-black tracking-widest uppercase text-studio-400 mb-6 border-b border-studio-200 pb-2">03. Base Silhouette</h3>
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-6">
           {filteredStyles.map(style => (
             <div
               key={style.id}
               onClick={() => !disabled && handleStyleChange(style)}
               className={`${cardBaseClasses} ${selectedStyle?.id === style.id ? selectedCardClasses : unselectedCardClasses} ${disabled ? disabledCardClasses : ''}`}
             >
-              <img src={style.imageUrl} alt={style.name} className="w-full h-40 sm:h-52 object-cover transition-transform duration-700 hover:scale-110" />
-              <div className="p-4 bg-studio-50 border-t border-studio-100 flex items-center justify-between">
-                  <span className="text-[10px] font-black tracking-widest uppercase text-studio-900">{style.name}</span>
-                  <div className="w-1.5 h-1.5 bg-studio-300 rounded-full" />
+              <img src={style.imageUrl} alt={style.name} className="w-full h-40 sm:h-52 object-cover object-top grayscale hover:grayscale-0 transition-all duration-700 hover:scale-105" />
+              <div className="p-4 bg-white border-t border-studio-100 flex items-center justify-between">
+                  <span className="text-[9px] font-black tracking-[0.2em] uppercase text-[#111111]">{style.name}</span>
               </div>
             </div>
           ))}
@@ -239,15 +238,15 @@ const PatternSelector: React.FC<PatternSelectorProps> = ({
       {/* 4. Sleeve Length Selection */}
       {selectedStyle && (
         <div className="animate-fade mt-10">
-          <h3 className="text-xs font-bold text-studio-400 mb-4 tracking-[0.3em] uppercase">04. SLEEVE SPECIFICATION</h3>
-          <div className="flex gap-3 p-1.5 bg-studio-100 rounded-2xl max-w-sm border border-studio-200">
+          <h3 className="text-[10px] font-black tracking-widest uppercase text-studio-400 mb-6 border-b border-studio-200 pb-2">04. Sleeve Specification</h3>
+          <div className="flex gap-4">
             {(['short', 'long'] as SleeveLength[]).map(sl => (
               <button
                 key={sl}
                 onClick={() => onSleeveLengthChange(sl)}
                 disabled={disabled}
-                className={`w-full py-2.5 px-4 rounded-xl font-bold transition-all text-xs tracking-widest uppercase ${
-                  sleeveLength === sl ? 'bg-studio-900 text-white shadow-xl scale-105' : 'bg-transparent text-studio-500 hover:bg-studio-200'
+                className={`w-32 py-3 px-4 font-black transition-all text-[10px] tracking-widest uppercase border rounded-[2px] ${
+                  sleeveLength === sl ? 'bg-[#111111] text-white border-[#111111]' : 'bg-transparent text-studio-500 hover:border-[#111111] border-studio-200'
                 } ${disabled ? 'cursor-not-allowed opacity-50' : ''}`}
               >
                 {sl}
@@ -260,7 +259,7 @@ const PatternSelector: React.FC<PatternSelectorProps> = ({
       {/* 5. Design Selection */}
       {selectedStyle && (
         <div className="animate-fade mt-12">
-          <h3 className="text-xs font-bold text-studio-400 mb-6 tracking-[0.3em] uppercase">05. PATTERN DETAIL</h3>
+          <h3 className="text-[10px] font-black tracking-widest uppercase text-studio-400 mb-6 border-b border-studio-200 pb-2">05. Technical Overlay</h3>
           {filteredDesigns.length > 0 ? (
             <div className="grid grid-cols-2 xs:grid-cols-4 gap-4">
               {filteredDesigns.map(design => (
@@ -269,42 +268,39 @@ const PatternSelector: React.FC<PatternSelectorProps> = ({
                   onClick={() => !disabled && onDesignSelect(design)}
                   className={`${cardBaseClasses} ${selectedDesign?.id === design.id ? selectedCardClasses : unselectedCardClasses} ${disabled ? disabledCardClasses : ''}`}
                 >
-                  <img src={design.imageUrl} alt={design.name} className="w-full h-32 object-cover bg-studio-100 p-2 grayscale hover:grayscale-0 transition-all duration-500" />
-                  <div className="p-3 bg-white text-center">
-                      <span className="text-[9px] font-black tracking-widest uppercase truncate block">{design.name}</span>
+                  <img src={design.imageUrl} alt={design.name} className="w-full h-40 object-cover p-2 grayscale hover:grayscale-0 transition-all duration-500" />
+                  <div className="p-3 bg-white border-t border-studio-100 text-center">
+                      <span className="text-[8px] font-black tracking-[0.2em] uppercase truncate block text-[#111111]">{design.name}</span>
                   </div>
                 </div>
               ))}
             </div>
           ) : (
-             <div className="p-8 border-2 border-dashed border-studio-200 rounded-3xl text-center">
-                 <p className="text-xs text-studio-400 italic tracking-widest uppercase">Classic Variation Active</p>
+             <div className="p-8 border border-studio-200 bg-studio-50 text-center">
+                 <p className="text-[10px] text-studio-400 font-mono tracking-widest uppercase">Classic Variation Active (Null Overlay)</p>
              </div>
           )}
         </div>
       )}
 
       {/* 6. Material Curation */}
-      <div className="mt-16 pt-12 border-t border-studio-200/50">
-        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-6 mb-8">
+      <div className="mt-16 pt-16 border-t border-studio-200">
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-6 mb-10">
             <div>
-                <h3 className="text-xs font-bold text-studio-400 mb-2 tracking-[0.3em] uppercase">06. TEXTILE CURATION</h3>
-                <h4 className="text-2xl font-serif text-studio-900 tracking-tight italic">Material Selection</h4>
-            </div>
-            <div className="bg-brand/5 text-brand px-4 py-2 rounded-xl flex items-center gap-3 text-xs font-bold tracking-[0.1em] border border-brand/20">
-                <TailorIcon className="w-4 h-4" /> STUDIO CHOICE
+                <h3 className="text-[10px] font-black uppercase text-studio-400 mb-2 tracking-[0.3em]">06. Spec Integration</h3>
+                <h4 className="text-4xl font-serif text-[#111111] tracking-tight italic">Material Library.</h4>
             </div>
         </div>
         
         <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 gap-6">
           <label 
             htmlFor="fabric-upload" 
-            className={`group flex flex-col items-center justify-center p-6 rounded-[2rem] border-2 border-dashed transition-all duration-300 ${disabled ? 'bg-studio-50 border-studio-200 text-studio-300' : 'bg-white border-studio-300 text-studio-500 hover:border-brand hover:bg-studio-50 cursor-pointer shadow-sm hover:shadow-2xl'}`}
+            className={`group flex flex-col items-center justify-center p-6 border border-dashed transition-all duration-300 ${disabled ? 'bg-studio-50 border-studio-200 text-studio-300' : 'bg-white border-studio-300 text-studio-500 hover:border-[#111111] hover:bg-studio-50 cursor-pointer shadow-sm'}`}
           >
-            <div className="bg-studio-100 group-hover:bg-brand/10 p-5 rounded-full transition-all">
-                <UploadIcon className="w-8 h-8 text-studio-500 group-hover:text-brand" />
+            <div className="bg-white group-hover:bg-[#111111] p-5 rounded-full border border-studio-200 transition-all">
+                <UploadIcon className="w-6 h-6 text-[#111111] group-hover:text-white" />
             </div>
-            <span className="text-[10px] font-black mt-5 tracking-[0.2em] uppercase">CLIENT OWN</span>
+            <span className="text-[9px] font-black mt-5 tracking-[0.2em] uppercase text-[#111111]">Upload Specific</span>
             <input id="fabric-upload" type="file" className="hidden" accept="image/png, image/jpeg, image/webp" onChange={handleFabricUpload} disabled={disabled} />
           </label>
 
@@ -312,12 +308,12 @@ const PatternSelector: React.FC<PatternSelectorProps> = ({
             <div 
               key={fabric.id} 
               onClick={() => !disabled && onFabricSelect(fabric)} 
-              className={`group relative rounded-[2rem] overflow-hidden cursor-pointer transition-all duration-500 transform hover:-translate-y-2 ${selectedFabric?.id === fabric.id ? 'ring-4 ring-brand ring-offset-4 scale-105 shadow-2xl' : 'border border-studio-100 hover:shadow-xl'} ${disabled ? disabledCardClasses : ''}`}
+              className={`group relative overflow-hidden cursor-pointer transition-all duration-500 transform border-2 ${selectedFabric?.id === fabric.id ? 'border-[#111111] z-10 scale-105 shadow-xl' : 'border-transparent hover:border-studio-200 hover:shadow-sm'} ${disabled ? disabledCardClasses : ''}`}
             >
-              <img src={fabric.imageUrl} alt={fabric.name} className="w-full h-40 object-cover grayscale-[0.5] group-hover:grayscale-0 transition-all duration-1000 group-hover:scale-110" />
-              <div className="absolute inset-x-0 bottom-0 bg-linear-to-t from-studio-900/90 via-studio-900/40 to-transparent p-5">
-                <span className="text-studio-50 text-[10px] font-black tracking-widest uppercase truncate block">{fabric.name}</span>
-                <p className="text-studio-400 text-[8px] uppercase tracking-widest mt-1">Studio Swatch</p>
+              <img src={fabric.imageUrl} alt={fabric.name} className="w-full h-40 object-cover grayscale-[0.8] group-hover:grayscale-0 transition-all duration-1000 group-hover:scale-105" />
+              <div className="absolute inset-x-0 bottom-0 bg-white/95 backdrop-blur-md p-4 border-t border-studio-100/50">
+                <span className="text-[#111111] text-[9px] font-black tracking-widest uppercase truncate block">{fabric.name}</span>
+                <p className="text-studio-500 text-[8px] uppercase tracking-widest mt-1">Stock Standard</p>
               </div>
             </div>
           ))}
