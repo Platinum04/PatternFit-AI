@@ -1,47 +1,117 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { SparklesIcon, TailorIcon } from './Icons';
+import { STYLES } from '../constants'; // Import to use a high-def render for the hero
 
 interface OnboardingProps {
   onStart: () => void;
 }
 
 const Onboarding: React.FC<OnboardingProps> = ({ onStart }) => {
+  const [isLoaded, setIsLoaded] = useState(false);
+  
+  useEffect(() => {
+      // Trigger animations slightly after mount for a smooth entrance
+      setTimeout(() => setIsLoaded(true), 100);
+  }, []);
+
+  // Use a premium studio asset for the hero image
+  const heroImage = STYLES.find(s => s.id === 'f-gown')?.imageUrl || STYLES[0].imageUrl;
+
   return (
-    <div className="fixed inset-0 bg-studio-900 flex items-center justify-center z-[5000] p-6 overflow-hidden">
-      {/* Background CAD Grid Effect */}
-      <div className="absolute inset-0 opacity-10 pointer-events-none" 
-           style={{ backgroundImage: 'radial-gradient(circle, #6366f1 1px, transparent 1px)', backgroundSize: '40px 40px' }} />
+    <div className="fixed inset-0 z-5000 bg-white overflow-hidden flex flex-col md:flex-row font-sans selection:bg-brand/20">
       
-      <div className="w-full max-w-xl mx-auto bg-white rounded-[3rem] shadow-[0_50px_100px_-20px_rgba(0,0,0,0.5)] p-10 sm:p-20 text-center relative border border-studio-200 animate-fade">
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-brand p-5 rounded-[2rem] shadow-2xl">
-          <TailorIcon className="w-10 h-10 text-white" />
-        </div>
-        
-        <div className="space-y-4 mb-10">
-            <h2 className="text-[10px] font-black tracking-[0.5em] text-studio-400 uppercase">SYSTEM_INITIALIZATION</h2>
-            <h1 className="text-4xl sm:text-5xl font-serif text-studio-900 tracking-tight leading-tight italic">
-              PatternFit <span className="text-brand">AI</span>
-            </h1>
-            <p className="text-[10px] font-black tracking-[0.3em] text-studio-400 uppercase">Virtual Tailor Workspace v1.0</p>
-        </div>
-        
-        <div className="w-12 h-1 bg-brand mx-auto rounded-full mb-10" />
+      {/* Left Output - Typography & Action */}
+      <div className={`w-full md:w-5/12 lg:w-1/2 p-8 md:p-16 lg:p-24 flex flex-col justify-center h-full relative z-10 transition-all duration-1000 ease-out ${isLoaded ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-12'}`}>
+          
+          <div className="absolute top-12 left-12 flex items-center gap-4">
+              <div className="p-3 bg-studio-900 rounded-2xl shadow-xl">
+                  <TailorIcon className="w-6 h-6 text-white" />
+              </div>
+              <span className="font-serif italic font-bold text-xl tracking-wide text-studio-900">PatternFit <span className="text-brand">AI</span></span>
+          </div>
 
-        <p className="text-studio-600 leading-relaxed text-lg font-light font-serif">
-          Experience the high-precision intersection of <span className="text-studio-900 font-bold">African Bespoke Craftsmanship</span> and <span className="text-studio-900 font-bold">Neural Design Rendering</span>. 
-        </p>
+          <div className="mt-20 max-w-xl">
+              <div className="flex items-center gap-4 mb-8">
+                  <span className="w-12 h-px bg-brand"></span>
+                  <span className="text-[10px] font-black tracking-widest text-brand uppercase">Virtua_Engine v2.0</span>
+              </div>
+              
+              <h1 className="text-5xl lg:text-7xl font-serif text-studio-900 leading-[1.1] tracking-tight mb-8">
+                  True-to-life <br />
+                  <span className="italic text-studio-600">Virtual Tailoring.</span>
+              </h1>
+              
+              <p className="text-lg text-studio-500 font-light leading-relaxed mb-12 max-w-md">
+                 Experience the industry-standard intersection of African bespoke craftsmanship and neural design rendering. Bring your technical specifications to life in stunning definition.
+              </p>
 
-        <div className="mt-14 space-y-6">
-            <button
-              onClick={onStart}
-              className="inline-flex items-center gap-4 w-full justify-center px-12 py-5 bg-studio-900 text-white font-black text-xs tracking-[0.3em] rounded-full shadow-2xl hover:bg-brand transition-all duration-500 transform hover:-translate-y-2 uppercase group"
-            >
-              <SparklesIcon className="w-5 h-5 group-hover:rotate-12 transition-transform" />
-              Initialize Workspace
-            </button>
-            <p className="text-[9px] text-studio-400 font-mono tracking-widest uppercase">READY_FOR_DEPLOYMENT</p>
-        </div>
+              <div className="flex flex-col sm:flex-row items-center gap-6">
+                  <button
+                    onClick={onStart}
+                    className="group relative px-10 py-5 bg-studio-900 text-white font-black text-xs tracking-widest uppercase overflow-hidden w-full sm:w-auto text-center"
+                  >
+                      <div className="absolute inset-0 bg-brand translate-y-full group-hover:translate-y-0 transition-transform duration-500 ease-out z-0"></div>
+                      <span className="relative z-10 flex items-center justify-center gap-3">
+                        <SparklesIcon className="w-4 h-4 group-hover:rotate-12 transition-transform" />
+                        Initialize Studio
+                      </span>
+                  </button>
+                  <span className="text-[10px] font-mono tracking-widest text-studio-400 border border-studio-200 px-4 py-2 uppercase">Platform Live</span>
+              </div>
+          </div>
+
+          {/* Technical Footer */}
+          <div className="absolute bottom-12 left-12 flex gap-12 text-[9px] font-mono tracking-widest text-studio-300 uppercase">
+              <div>
+                  <span className="block text-studio-900 font-bold mb-1">Architecture</span>
+                  <span>Neural_Cad_SYS</span>
+              </div>
+              <div>
+                  <span className="block text-studio-900 font-bold mb-1">Render Status</span>
+                  <span className="flex items-center gap-2"><span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></span> Online</span>
+              </div>
+          </div>
       </div>
+
+      {/* Right Output - Hero Visual */}
+      <div className={`relative w-full md:w-7/12 lg:w-1/2 h-full bg-studio-50 flex items-center justify-center overflow-hidden transition-all duration-1000 delay-300 ease-out border-l border-studio-200 ${isLoaded ? 'opacity-100' : 'opacity-0'}`}>
+          
+          {/* Subtle CAD Grid Background */}
+          <div className="absolute inset-0 opacity-20 pointer-events-none" 
+               style={{ backgroundImage: 'radial-gradient(circle, #94a3b8 1px, transparent 1px)', backgroundSize: '40px 40px' }} />
+          
+          {/* Tech lines */}
+          <div className="absolute top-0 left-10 w-px h-full bg-studio-200/50"></div>
+          <div className="absolute top-1/2 left-0 w-full h-px bg-studio-200/50"></div>
+          <div className="absolute top-[20%] right-10 flex items-center gap-2 text-[10px] font-mono tracking-widest text-studio-400 rotate-90 transform origin-top-right">
+              VIEWPORT_RENDER_01
+              <span className="w-8 h-px bg-studio-300"></span>
+          </div>
+
+          {/* Floating High-Def Image */}
+          <div className="relative w-[75%] max-w-2xl h-[80%] max-h-[800px] animate-[float_8s_ease-in-out_infinite]">
+              <div className="absolute inset-0 bg-white shadow-2xl rounded-2xl md:rounded-4xl transform rotate-2 hover:rotate-0 transition-transform duration-700 ease-out overflow-hidden border border-studio-200">
+                   <img 
+                      src={heroImage} 
+                      alt="3D Garment Render" 
+                      className="w-full h-full object-cover object-center scale-105 hover:scale-100 transition-transform duration-[2s]" 
+                    />
+                   {/* Overlay technical markers */}
+                   <div className="absolute top-6 left-6 w-3 h-3 border-t-2 border-l-2 border-brand"></div>
+                   <div className="absolute bottom-6 right-6 w-3 h-3 border-b-2 border-r-2 border-brand"></div>
+              </div>
+              <div className="absolute -bottom-8 -right-8 w-64 h-64 bg-brand/10 blur-3xl rounded-full -z-10"></div>
+          </div>
+
+      </div>
+
+      <style>{`
+          @keyframes float {
+              0% { transform: translateY(0px); }
+              50% { transform: translateY(-20px); }
+              100% { transform: translateY(0px); }
+          }
+      `}</style>
     </div>
   );
 };
