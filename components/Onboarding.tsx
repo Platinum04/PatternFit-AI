@@ -80,31 +80,31 @@ const Onboarding: React.FC<OnboardingProps> = ({ onStart }) => {
               <span className="w-8 h-px bg-studio-300"></span>
           </div>
 
-          {/* Floating High-Def Measurement Layout */}
-          <div className="relative w-full max-w-2xl h-[80%] max-h-[800px] flex items-center justify-center">
+          {/* High-Def Side-by-Side Measurement Layout */}
+          <div className="relative w-full h-[85%] px-6 md:px-12 flex flex-col md:flex-row items-center justify-center gap-6 lg:gap-10">
               
-              {/* Back Card - Women's Gown */}
-              <div className="absolute right-[5%] lg:right-[15%] top-[10%] w-[60%] sm:w-[50%] h-[70%] bg-white shadow-2xl rounded-2xl md:rounded-4xl transform rotate-3 hover:rotate-6 transition-transform duration-700 ease-out overflow-hidden border border-studio-200 animate-[float_8s_ease-in-out_infinite_1s]">
-                   <img 
-                      src="/assets/studio/landing_gown_measured_1774259599110.png" 
-                      alt="Women Measurement Specifications" 
-                      className="w-full h-full object-cover object-center" 
-                    />
-                   <div className="absolute bottom-4 left-4 bg-white/90 backdrop-blur-sm px-3 py-1.5 text-[8px] font-mono tracking-widest text-studio-900 border border-studio-100 uppercase rounded z-10">Spec_Profile_F</div>
-              </div>
-              
-              {/* Front Card - Men's Kaftan */}
-              <div className="absolute left-[5%] lg:left-[15%] bottom-[10%] w-[60%] sm:w-[50%] h-[70%] bg-white shadow-2xl rounded-2xl md:rounded-4xl transform -rotate-2 hover:-rotate-4 transition-transform duration-700 ease-out overflow-hidden border-2 border-brand z-10 animate-[float_7s_ease-in-out_infinite]">
+              {/* Card - Men's Kaftan */}
+              <div className="relative w-full md:w-1/2 max-w-[320px] aspect-[4/5] bg-white shadow-[0_30px_60px_-15px_rgba(0,0,0,0.15)] rounded-3xl overflow-hidden border border-studio-200 transition-transform duration-700 hover:-translate-y-2 group">
                    <img 
                       src="/assets/studio/landing_kaftan_measured_1774259559085.png" 
                       alt="Men Kaftan Measurement Specifications" 
-                      className="w-full h-full object-cover object-center" 
+                      className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-[2s]" 
                     />
-                   <div className="absolute top-4 right-4 bg-brand/90 backdrop-blur-sm px-3 py-1.5 text-[8px] font-mono tracking-widest text-white uppercase rounded z-10">Spec_Profile_M</div>
+                   <div className="absolute top-4 left-4 bg-brand/95 backdrop-blur-md px-3 py-1.5 text-[9px] font-mono tracking-widest text-white uppercase rounded-md z-10 shadow-lg">Spec_Profile_M</div>
               </div>
 
-              {/* Glow */}
-              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-brand/10 blur-3xl rounded-full -z-10"></div>
+              {/* Card - Women's Gown (Slightly offset downward for an asymmetrical designer look) */}
+              <div className="relative w-full md:w-1/2 max-w-[320px] aspect-[4/5] bg-white shadow-[0_30px_60px_-15px_rgba(0,0,0,0.15)] rounded-3xl overflow-hidden border border-studio-200 transition-transform duration-700 hover:-translate-y-2 md:mt-16 group">
+                   <img 
+                      src="/assets/studio/landing_gown_measured_1774259599110.png" 
+                      alt="Women Measurement Specifications" 
+                      className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-[2s]" 
+                    />
+                   <div className="absolute bottom-4 right-4 bg-white/95 backdrop-blur-md px-3 py-1.5 text-[9px] font-mono tracking-widest text-studio-900 border border-studio-200 uppercase rounded-md z-10 shadow-lg">Spec_Profile_F</div>
+              </div>
+
+              {/* Central Glow Effect */}
+              <div className="absolute inset-0 bg-brand/5 blur-3xl rounded-full pointer-events-none -z-10 mix-blend-multiply"></div>
           </div>
 
       </div>
