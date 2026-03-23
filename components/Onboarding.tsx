@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { SparklesIcon, TailorIcon } from './Icons';
-import { STYLES } from '../constants'; // Import to use a high-def render for the hero
 
 interface OnboardingProps {
   onStart: () => void;
@@ -13,9 +12,6 @@ const Onboarding: React.FC<OnboardingProps> = ({ onStart }) => {
       // Trigger animations slightly after mount for a smooth entrance
       setTimeout(() => setIsLoaded(true), 100);
   }, []);
-
-  // Use a premium studio asset for the hero image
-  const heroImage = STYLES.find(s => s.id === 'f-gown')?.imageUrl || STYLES[0].imageUrl;
 
   return (
     <div className="fixed inset-0 z-5000 bg-white overflow-hidden flex flex-col md:flex-row font-sans selection:bg-brand/20">
@@ -31,10 +27,6 @@ const Onboarding: React.FC<OnboardingProps> = ({ onStart }) => {
           </div>
 
           <div className="mt-20 max-w-xl">
-              <div className="flex items-center gap-4 mb-8">
-                  <span className="w-12 h-px bg-brand"></span>
-                  <span className="text-[10px] font-black tracking-widest text-brand uppercase">Virtua_Engine v2.0</span>
-              </div>
               
               <h1 className="text-5xl lg:text-7xl font-serif text-studio-900 leading-[1.1] tracking-tight mb-8">
                   True-to-life <br />
@@ -88,19 +80,31 @@ const Onboarding: React.FC<OnboardingProps> = ({ onStart }) => {
               <span className="w-8 h-px bg-studio-300"></span>
           </div>
 
-          {/* Floating High-Def Image */}
-          <div className="relative w-[75%] max-w-2xl h-[80%] max-h-[800px] animate-[float_8s_ease-in-out_infinite]">
-              <div className="absolute inset-0 bg-white shadow-2xl rounded-2xl md:rounded-4xl transform rotate-2 hover:rotate-0 transition-transform duration-700 ease-out overflow-hidden border border-studio-200">
+          {/* Floating High-Def Measurement Layout */}
+          <div className="relative w-full max-w-2xl h-[80%] max-h-[800px] flex items-center justify-center">
+              
+              {/* Back Card - Women's Gown */}
+              <div className="absolute right-[5%] lg:right-[15%] top-[10%] w-[60%] sm:w-[50%] h-[70%] bg-white shadow-2xl rounded-2xl md:rounded-4xl transform rotate-3 hover:rotate-6 transition-transform duration-700 ease-out overflow-hidden border border-studio-200 animate-[float_8s_ease-in-out_infinite_1s]">
                    <img 
-                      src={heroImage} 
-                      alt="3D Garment Render" 
-                      className="w-full h-full object-cover object-center scale-105 hover:scale-100 transition-transform duration-[2s]" 
+                      src="/assets/studio/landing_gown_measured_1774259599110.png" 
+                      alt="Women Measurement Specifications" 
+                      className="w-full h-full object-cover object-center" 
                     />
-                   {/* Overlay technical markers */}
-                   <div className="absolute top-6 left-6 w-3 h-3 border-t-2 border-l-2 border-brand"></div>
-                   <div className="absolute bottom-6 right-6 w-3 h-3 border-b-2 border-r-2 border-brand"></div>
+                   <div className="absolute bottom-4 left-4 bg-white/90 backdrop-blur-sm px-3 py-1.5 text-[8px] font-mono tracking-widest text-studio-900 border border-studio-100 uppercase rounded z-10">Spec_Profile_F</div>
               </div>
-              <div className="absolute -bottom-8 -right-8 w-64 h-64 bg-brand/10 blur-3xl rounded-full -z-10"></div>
+              
+              {/* Front Card - Men's Kaftan */}
+              <div className="absolute left-[5%] lg:left-[15%] bottom-[10%] w-[60%] sm:w-[50%] h-[70%] bg-white shadow-2xl rounded-2xl md:rounded-4xl transform -rotate-2 hover:-rotate-4 transition-transform duration-700 ease-out overflow-hidden border-2 border-brand z-10 animate-[float_7s_ease-in-out_infinite]">
+                   <img 
+                      src="/assets/studio/landing_kaftan_measured_1774259559085.png" 
+                      alt="Men Kaftan Measurement Specifications" 
+                      className="w-full h-full object-cover object-center" 
+                    />
+                   <div className="absolute top-4 right-4 bg-brand/90 backdrop-blur-sm px-3 py-1.5 text-[8px] font-mono tracking-widest text-white uppercase rounded z-10">Spec_Profile_M</div>
+              </div>
+
+              {/* Glow */}
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-brand/10 blur-3xl rounded-full -z-10"></div>
           </div>
 
       </div>
