@@ -289,7 +289,7 @@ const App: React.FC = () => {
       <Header onWardrobeClick={() => setIsWardrobeOpen(true)} onAboutClick={() => setIsAboutModalOpen(true)} />
       
       <main className="w-full max-w-5xl">
-        <div className="bg-white p-6 sm:p-12 rounded-[2rem] shadow-2xl shadow-studio-900/10 border border-studio-200/50">
+        <div className="bg-white p-6 sm:p-12 rounded-4xl shadow-2xl shadow-studio-900/10 border border-studio-200/50">
           <StepIndicator currentStep={appStep} />
 
           {appStep === AppStep.SELECTION && (

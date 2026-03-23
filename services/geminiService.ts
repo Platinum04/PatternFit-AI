@@ -5,8 +5,16 @@ let aiInstance: GoogleGenAI | null = null;
 
 const getAI = () => {
     if (!aiInstance) {
-        const apiKey = process.env.API_KEY || "";
-        aiInstance = new GoogleGenAI({ apiKey });
+        // Use the key injected by Vite via 'define' in vite.config.ts
+        const apiKey = (typeof process !== 'undefined' ? process.env.API_KEY : '') || '';
+        
+        const isPlaceholder = apiKey === "YOUR_GEMINI_API_KEY_HERE" || !apiKey;
+        
+        if (isPlaceholder) {
+            console.error("PatternFit Studio: [CRITICAL] API_KEY_NOT_FOUND. \n1. Check your .env file. \n2. RESTART your terminal (npm run dev). \nAI services will fail until then.");
+        }
+        
+        aiInstance = new GoogleGenAI({ apiKey: isPlaceholder ? "MISSING_KEY" : apiKey });
     }
     return aiInstance;
 };

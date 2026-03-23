@@ -92,11 +92,9 @@ const Wardrobe: React.FC<WardrobeProps> = ({
         <div className="grow p-8 overflow-y-auto bg-studio-50/20">
           {activeTab === 'fits' ? (
               fits.length === 0 ? (
-                <div className="flex flex-col items-center justify-center h-full text-center space-y-4 opacity-50">
-                  <div className="w-20 h-20 border-2 border-dashed border-studio-300 rounded-full flex items-center justify-center">
-                    <WardrobeIcon className="w-10 h-10 text-studio-200" />
-                  </div>
-                  <h3 className="text-xs font-black tracking-widest text-studio-400 uppercase">NO_RECORDS_FOUND</h3>
+                <div className="flex flex-col items-center justify-center h-full text-center space-y-8 opacity-40">
+                  <img src="C:/Users/User/.gemini/antigravity/brain/45572cf3-ba23-4b9e-8380-c5dcea8308c0/studio_empty_state_cad_1774252153238.png" className="w-80 opacity-50 contrast-125" alt="Empty Library" />
+                  <h3 className="text-xs font-black tracking-widest text-studio-400 uppercase">NO_ACTIVE_PROJECTS_IN_BUFFER</h3>
                 </div>
               ) : (
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-8">
@@ -169,9 +167,9 @@ const Wardrobe: React.FC<WardrobeProps> = ({
                 )}
 
                 {collections.length === 0 ? (
-                    <div className="grow flex flex-col items-center justify-center text-center space-y-4 opacity-40">
-                         <div className="w-24 h-24 border-2 border-dashed border-studio-200 rounded-4xl mb-4" />
-                         <p className="text-[10px] font-black tracking-widest text-studio-400 uppercase">NO_ACTIVE_COLLECTIONS</p>
+                    <div className="grow flex flex-col items-center justify-center text-center space-y-8 opacity-40">
+                         <img src="C:/Users/User/.gemini/antigravity/brain/45572cf3-ba23-4b9e-8380-c5dcea8308c0/studio_empty_state_cad_1774252153238.png" className="w-64 opacity-50 grayscale" alt="Empty Collections" />
+                         <p className="text-[10px] font-black tracking-widest text-studio-400 uppercase">WORKSPACE_COLLECTIONS_UNDEFINED</p>
                     </div>
                 ) : (
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">

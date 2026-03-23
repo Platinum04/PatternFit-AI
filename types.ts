@@ -77,7 +77,7 @@ export interface SavedFit {
 
 export interface StylistComment {
   id: string;
-  author: 'Expert Stylist' | 'Community' | 'AI Tailor';
+  author: 'Expert Stylist' | 'Community' | 'AI Tailor' | 'Studio Expert';
   content: string;
   createdAt: string;
 }

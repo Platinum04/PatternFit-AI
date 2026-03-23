@@ -141,7 +141,7 @@ const PatternSelector: React.FC<PatternSelectorProps> = ({
   const filteredStyles = STYLES.filter(s => s.gender === gender);
   const filteredDesigns = selectedStyle ? DESIGNS.filter(d => d.styleId === selectedStyle.id) : [];
 
-  const cardBaseClasses = "border rounded-[1rem] overflow-hidden cursor-pointer transition-all duration-300 transform hover:scale-[1.02] active:scale-95 shadow-sm";
+  const cardBaseClasses = "border rounded-2xl overflow-hidden cursor-pointer transition-all duration-300 transform hover:scale-[1.02] active:scale-95 shadow-sm";
   const selectedCardClasses = "border-studio-900 ring-4 ring-studio-900 shadow-2xl z-10 scale-[1.04]";
   const unselectedCardClasses = "border-studio-200 bg-white hover:border-studio-400 hover:shadow-lg";
   const disabledCardClasses = "opacity-40 cursor-not-allowed grayscale filter";
@@ -174,7 +174,7 @@ const PatternSelector: React.FC<PatternSelectorProps> = ({
       </div>
 
       {/* 2. Height & AI Measure */}
-      <div className={`p-6 rounded-[2rem] transition-all duration-500 border border-transparent ${highlightHeight ? 'bg-studio-50 border-brand/20 shadow-xl shadow-brand/5' : ''}`}>
+      <div className={`p-6 rounded-4xl transition-all duration-500 border border-transparent ${highlightHeight ? 'bg-studio-50 border-brand/20 shadow-xl shadow-brand/5' : ''}`}>
         <h3 className="text-xs font-bold text-studio-400 mb-4 tracking-[0.3em] uppercase">02. SCALE & PROPORTION</h3>
         <div className="flex flex-col sm:flex-row items-start sm:items-end gap-6">
             <div className="w-full sm:w-40">
