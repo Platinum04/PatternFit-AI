@@ -269,7 +269,7 @@ const App: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen flex flex-col items-center p-4 sm:p-6 lg:p-8">
+    <div className="min-h-screen bg-studio-100 flex flex-col items-center pt-24 pb-8 px-4 sm:px-6 lg:px-8">
       {loadingMessage && <LoadingOverlay message={loadingMessage} />}
       {isCameraOpen && <CameraCapture onCapture={handleImageUpload} onClose={() => setIsCameraOpen(false)} />}
       {isWardrobeOpen && (
@@ -288,12 +288,12 @@ const App: React.FC = () => {
       
       <Header onWardrobeClick={() => setIsWardrobeOpen(true)} onAboutClick={() => setIsAboutModalOpen(true)} />
       
-      <main className="w-full max-w-4xl mt-8">
-        <div className="bg-white p-6 sm:p-10 rounded-3xl shadow-xl shadow-premium-900/5 border border-premium-100">
+      <main className="w-full max-w-5xl">
+        <div className="bg-white p-6 sm:p-12 rounded-[2rem] shadow-2xl shadow-studio-900/10 border border-studio-200/50">
           <StepIndicator currentStep={appStep} />
 
           {appStep === AppStep.SELECTION && (
-            <div className="mt-10">
+            <div className="mt-12">
               <PatternSelector
                 gender={gender}
                 onGenderChange={setGender}
@@ -312,23 +312,23 @@ const App: React.FC = () => {
                 onMagicMeasure={() => setIsCameraOpenForMeasurement(true)}
                 isMeasuringAI={isMeasuringAI}
               />
-              <div className="mt-10 border-t border-premium-100 pt-8">
-                <h3 className="text-xl font-serif font-medium text-premium-900 mb-4 tracking-wide">7. Upload Your Photo</h3>
+              <div className="mt-12 border-t border-studio-100 pt-10">
+                <h3 className="text-xl font-serif font-medium text-studio-900 mb-6 tracking-wide">7. CLIENT REFERENCE PHOTO</h3>
                 <ImageUploader onUpload={handleImageUpload} onTakePhoto={() => setIsCameraOpen(true)} disabled={appStep !== AppStep.SELECTION} />
               </div>
 
-              <div className="mt-12 text-center">
+              <div className="mt-14 text-center">
                 <button
                   onClick={handleGenerateFit}
                   disabled={isGenerateButtonDisabled}
-                  className={`inline-flex items-center gap-3 px-12 py-4 font-medium text-lg rounded-full shadow-lg transition-all duration-300 transform hover:-translate-y-1 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-premium-900
+                  className={`inline-flex items-center gap-3 px-16 py-5 font-bold text-sm tracking-[0.2em] rounded-full shadow-2xl transition-all duration-500 transform hover:-translate-y-1 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand uppercase
                     ${isGenerateButtonDisabled
-                      ? 'bg-premium-100 text-premium-400 cursor-not-allowed shadow-none'
-                      : 'bg-premium-900 text-white hover:bg-premium-800 hover:shadow-premium-900/30'
+                      ? 'bg-studio-200 text-studio-400 cursor-not-allowed shadow-none'
+                      : 'bg-accent text-white hover:bg-studio-900 hover:shadow-studio-900/30 active:scale-95'
                     }`}
                 >
-                  <SparklesIcon className="w-6 h-6" />
-                  Generate My Fitting
+                  <SparklesIcon className="w-5 h-5" />
+                  GENERATE STUDIO FITTING
                 </button>
               </div>
             </div>

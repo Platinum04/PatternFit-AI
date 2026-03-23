@@ -2,31 +2,35 @@
 
 /* ===== Custom Theme for PatternFit AI ===== */
 @theme {
-  /* Premium Neutral Palette */
-  --color-premium-50: #fcfcfc;
-  --color-premium-100: #f5f5f5;
-  --color-premium-200: #e5e5e5;
-  --color-premium-300: #d4d4d4;
-  --color-premium-400: #a3a3a3;
-  --color-premium-500: #737373;
-  --color-premium-600: #525252;
-  --color-premium-700: #404040;
-  --color-premium-800: #262626;
-  --color-premium-900: #171717;
-  --color-premium-950: #0a0a0a;
+  /* Workstation Neutral Palette (Cooler & Professional) */
+  --color-studio-50: #fbfbfb;
+  --color-studio-100: #f0f1f3;
+  --color-studio-200: #e2e4e7;
+  --color-studio-300: #d1d5db;
+  --color-studio-400: #9ca3af;
+  --color-studio-500: #6b7280;
+  --color-studio-600: #4b5563;
+  --color-studio-700: #374151;
+  --color-studio-800: #1f2937;
+  --color-studio-900: #111827;
 
-  /* Warm Accent Palette */
-  --color-accent-light: #e6c8b3;
-  --color-accent: #c59a7c;
-  --color-accent-dark: #8b664d;
+  /* Sharp Accents (Like CLO 3D) */
+  --color-accent: #000000;
+  --color-accent-soft: #f4f4f4;
+  --color-brand: #6366f1; /* Professional Indigo */
 
-  /* Typography */
-  --font-sans: 'Inter', sans-serif;
-  --font-serif: 'Bodoni Moda', serif;
+  /* Typography (Focus on Clarity & Precision) */
+  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-serif: 'Instrument Serif', serif;
 
-  /* Animations */
-  --animate-fade-in: fadeIn 0.4s ease-out forwards;
-  --animate-spin: spin 1s linear infinite;
+  /* Software UI Interactions */
+  --animate-slide-in: slideIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  --animate-fade: fadeIn 0.4s ease-out forwards;
+}
+
+@keyframes slideIn {
+  from { transform: translateX(-20px); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
 }
 
 /* ===== Keyframes ===== */

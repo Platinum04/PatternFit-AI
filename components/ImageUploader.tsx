@@ -21,8 +21,8 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ onUpload, onTakePhoto, di
       return;
     }
 
-    if (file.size > 5 * 1024 * 1024) { // 5MB limit
-      setError('File is too large. Please upload an image under 5MB.');
+    if (file.size > 10 * 1024 * 1024) { // 10MB limit (Studio Grade)
+      setError('File too large for studio processing. Limit is 10MB.');
       setFileName('');
       return;
     }
@@ -36,7 +36,7 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ onUpload, onTakePhoto, di
       if (base64String) {
         onUpload(file, base64String, file.type);
       } else {
-        setError('Could not read the image file.');
+        setError('Could not read the source file.');
       }
     };
     reader.onerror = () => {
@@ -49,18 +49,20 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ onUpload, onTakePhoto, di
   }, [onUpload]);
 
   return (
-    <div>
-      <div className="flex flex-col sm:flex-row gap-2">
+    <div className="space-y-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
          <label
             htmlFor="image-upload"
-            className={`flex-1 w-full flex flex-col items-center justify-center p-6 border-2 border-dashed rounded-2xl cursor-pointer transition-all duration-300
+            className={`group relative flex flex-col items-center justify-center p-10 border-2 border-dashed rounded-[2rem] transition-all duration-500
             ${disabled
-              ? 'bg-premium-100/50 border-premium-200 text-premium-400 cursor-not-allowed'
-              : 'bg-premium-50/50 border-premium-300 text-premium-900 hover:bg-premium-100/50 hover:border-premium-900/50'
+              ? 'bg-studio-100 border-studio-200 text-studio-300 cursor-not-allowed'
+              : 'bg-white border-studio-200 text-studio-900 hover:border-brand hover:bg-studio-50 cursor-pointer shadow-sm hover:shadow-2xl'
             }`}
           >
-            <UploadIcon className="w-8 h-8 mb-2" />
-            <span className="font-semibold text-sm text-center">{fileName || 'Upload photo'}</span>
+            <div className="bg-studio-100 group-hover:bg-brand/10 p-5 rounded-full mb-4 transition-all">
+                <UploadIcon className="w-8 h-8 text-studio-500 group-hover:text-brand" />
+            </div>
+            <span className="text-[10px] font-black tracking-[0.2em] uppercase">{fileName || 'LOAD_BASE_IMAGE'}</span>
             <input
               id="image-upload"
               type="file"
@@ -75,18 +77,20 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ onUpload, onTakePhoto, di
             type="button"
             onClick={onTakePhoto}
             disabled={disabled}
-            className={`flex-1 w-full flex flex-col items-center justify-center p-6 border-2 border-dashed rounded-2xl cursor-pointer transition-all duration-300
+            className={`group relative flex flex-col items-center justify-center p-10 border-2 border-dashed rounded-[2rem] transition-all duration-500
             ${disabled
-              ? 'bg-premium-100/50 border-premium-200 text-premium-400 cursor-not-allowed'
-              : 'bg-premium-50/50 border-premium-300 text-premium-900 hover:bg-premium-100/50 hover:border-premium-900/50'
+              ? 'bg-studio-100 border-studio-200 text-studio-300 cursor-not-allowed'
+              : 'bg-white border-studio-200 text-studio-900 hover:border-brand hover:bg-studio-50 cursor-pointer shadow-sm hover:shadow-2xl'
             }`}
           >
-              <CameraIcon className="w-8 h-8 mb-2" />
-              <span className="font-semibold text-sm text-center">Take a photo</span>
+              <div className="bg-studio-100 group-hover:bg-brand/10 p-5 rounded-full mb-4 transition-all">
+                  <CameraIcon className="w-8 h-8 text-studio-500 group-hover:text-brand" />
+              </div>
+              <span className="text-[10px] font-black tracking-[0.2em] uppercase">CAPTURE_LIVE_SOURCE</span>
           </button>
       </div>
-       {fileName && <p className="text-xs text-premium-500 mt-2 text-center">Selected: {fileName}</p>}
-      {error && <p className="text-sm text-red-600 mt-2">{error}</p>}
+       {fileName && <p className="text-[9px] text-studio-400 font-mono text-center tracking-widest uppercase italic">Active_Buffer: {fileName}</p>}
+      {error && <p className="text-[9px] text-red-500 font-black text-center tracking-[0.25em] uppercase animate-shake">{error}</p>}
     </div>
   );
 };

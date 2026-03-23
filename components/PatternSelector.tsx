@@ -141,13 +141,13 @@ const PatternSelector: React.FC<PatternSelectorProps> = ({
   const filteredStyles = STYLES.filter(s => s.gender === gender);
   const filteredDesigns = selectedStyle ? DESIGNS.filter(d => d.styleId === selectedStyle.id) : [];
 
-  const cardBaseClasses = "border-2 rounded-lg overflow-hidden cursor-pointer transition-all duration-200 transform hover:scale-105";
-  const selectedCardClasses = "border-premium-900 ring-2 ring-premium-900 shadow-lg";
-  const unselectedCardClasses = "border-premium-200 hover:border-premium-300 hover:shadow-md";
-  const disabledCardClasses = "opacity-50 cursor-not-allowed hover:scale-100 hover:shadow-none";
+  const cardBaseClasses = "border rounded-[1rem] overflow-hidden cursor-pointer transition-all duration-300 transform hover:scale-[1.02] active:scale-95 shadow-sm";
+  const selectedCardClasses = "border-studio-900 ring-4 ring-studio-900 shadow-2xl z-10 scale-[1.04]";
+  const unselectedCardClasses = "border-studio-200 bg-white hover:border-studio-400 hover:shadow-lg";
+  const disabledCardClasses = "opacity-40 cursor-not-allowed grayscale filter";
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       <FabricNameModal
         isOpen={isNameModalOpen}
         onClose={() => setIsNameModalOpen(false)}
@@ -155,81 +155,82 @@ const PatternSelector: React.FC<PatternSelectorProps> = ({
       />
 
       {/* 1. Gender Selection */}
-      <div className="animate-fade-in">
-        <h3 className="text-xl font-serif font-medium text-premium-900 mb-4 tracking-wide">1. Select Gender</h3>
-        <div className="flex gap-2 p-1 bg-premium-100/50 rounded-xl">
+      <div className="animate-fade">
+        <h3 className="text-xs font-bold text-studio-400 mb-4 tracking-[0.3em] uppercase">01. GENDER CONTEXT</h3>
+        <div className="flex gap-2 p-1.5 bg-studio-100 rounded-2xl max-w-sm border border-studio-200">
           {(['female', 'male'] as Gender[]).map(g => (
             <button
               key={g}
               onClick={() => handleGenderChange(g)}
               disabled={disabled}
-              className={`w-full py-2 px-4 rounded-md font-semibold transition-colors text-sm sm:text-base ${
-                gender === g ? 'bg-premium-900 text-white shadow' : 'bg-transparent text-premium-600 hover:bg-premium-200'
-              } ${disabled ? 'cursor-not-allowed' : ''}`}
+              className={`w-full py-2.5 px-6 rounded-xl font-bold transition-all text-xs tracking-widest uppercase ${
+                gender === g ? 'bg-studio-900 text-white shadow-xl scale-105' : 'bg-transparent text-studio-500 hover:bg-studio-200'
+              } ${disabled ? 'cursor-not-allowed opacity-50' : ''}`}
             >
-              {g.charAt(0).toUpperCase() + g.slice(1)}
+              {g}
             </button>
           ))}
         </div>
       </div>
 
       {/* 2. Height & AI Measure */}
-      <div className={`rounded-2xl transition-all duration-300 ${highlightHeight ? 'bg-premium-50 ring-2 ring-premium-300 p-4 -m-4' : ''}`}>
-        <h3 className="text-xl font-serif font-medium text-premium-900 mb-4 tracking-wide">2. Enter Height & AI Measurement</h3>
-        <div className="max-w-md">
-           <div className="flex flex-col sm:flex-row items-start sm:items-end gap-4">
-              <div className="w-full sm:w-32">
-                  <label htmlFor="height" className="block text-sm font-medium text-premium-600 mb-1">Height (ft)</label>
-                  <div className="relative rounded-md shadow-sm">
-                    <input
-                      type="number"
-                      id="height"
-                      value={height}
-                      onChange={(e) => onHeightChange(e.target.value)}
-                      placeholder="5.7"
-                      min="1"
-                      max="8"
-                      step="0.01"
-                      className="block w-full pl-3 pr-8 py-2 bg-white border border-premium-300 rounded-md placeholder-premium-400 focus:outline-none focus:ring-premium-900 focus:border-premium-900 sm:text-sm disabled:bg-premium-50"
-                      disabled={disabled}
-                    />
-                    <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
-                        <span className="text-premium-400 text-xs">ft</span>
-                    </div>
+      <div className={`p-6 rounded-[2rem] transition-all duration-500 border border-transparent ${highlightHeight ? 'bg-studio-50 border-brand/20 shadow-xl shadow-brand/5' : ''}`}>
+        <h3 className="text-xs font-bold text-studio-400 mb-4 tracking-[0.3em] uppercase">02. SCALE & PROPORTION</h3>
+        <div className="flex flex-col sm:flex-row items-start sm:items-end gap-6">
+            <div className="w-full sm:w-40">
+                <label htmlFor="height" className="block text-[10px] font-black text-studio-500 mb-2 tracking-widest uppercase italic">Base Height (ft)</label>
+                <div className="relative group">
+                  <input
+                    type="number"
+                    id="height"
+                    value={height}
+                    onChange={(e) => onHeightChange(e.target.value)}
+                    placeholder="5.7"
+                    min="1"
+                    max="8"
+                    step="0.01"
+                    className="block w-full pl-5 pr-10 py-3.5 bg-studio-50 border-studio-200 rounded-xl placeholder-studio-300 text-studio-900 font-mono focus:outline-none focus:ring-2 focus:ring-brand focus:border-brand transition-all border-2"
+                    disabled={disabled}
+                  />
+                  <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-4">
+                      <span className="text-studio-400 font-mono text-xs">ft</span>
                   </div>
-              </div>
-              
-              <button
-                type="button"
-                onClick={onMagicMeasure}
-                disabled={disabled || !height || isMeasuringAI}
-                className={`inline-flex items-center gap-2 px-6 py-2 h-[38px] text-sm font-bold rounded-lg transition-all
-                  ${(disabled || !height || isMeasuringAI)
-                    ? 'bg-premium-100 text-premium-400 cursor-not-allowed border border-premium-200'
-                    : 'bg-accent text-white hover:bg-accent-dark shadow-md hover:shadow-accent/20 active:scale-95'
-                  }`}
-              >
-                <SparklesIcon className={`w-4 h-4 ${isMeasuringAI ? 'animate-spin' : ''}`} />
-                {isMeasuringAI ? 'AI Measuring...' : 'Magic Measure with AI'}
-              </button>
-           </div>
-           {!height && <p className="text-xs text-premium-500 mt-2 italic font-light">Enter height first to unlock AI body measurement.</p>}
+                </div>
+            </div>
+            
+            <button
+              type="button"
+              onClick={onMagicMeasure}
+              disabled={disabled || !height || isMeasuringAI}
+              className={`inline-flex items-center gap-3 px-8 py-3.5 h-[52px] text-xs font-black tracking-widest rounded-xl transition-all uppercase
+                ${(disabled || !height || isMeasuringAI)
+                  ? 'bg-studio-200 text-studio-400 cursor-not-allowed border border-studio-300'
+                  : 'bg-studio-900 text-white hover:bg-brand shadow-2xl hover:shadow-brand/20 active:scale-95'
+                }`}
+            >
+              <SparklesIcon className={`w-4 h-4 ${isMeasuringAI ? 'animate-spin' : ''}`} />
+              {isMeasuringAI ? 'ANALYZING...' : 'MAGIC MEASURE'}
+            </button>
         </div>
-        {highlightHeight && <p className="text-sm text-premium-900 mt-2 animate-pulse">Required: Please enter your height.</p>}
+        {!height && <p className="text-[10px] text-studio-400 mt-4 tracking-tighter italic">Required for AI measurement calculations.</p>}
+        {highlightHeight && <p className="text-sm text-brand mt-4 animate-pulse font-bold tracking-tight">ACTION REQUIRED: Specifiy base height.</p>}
       </div>
 
       {/* 3. Style Selection */}
-      <div className="animate-fade-in pt-4">
-        <h3 className="text-xl font-serif font-medium text-premium-900 mb-4 tracking-wide">3. Choose Your Style</h3>
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-6">
+      <div className="animate-fade pt-4">
+        <h3 className="text-xs font-bold text-studio-400 mb-6 tracking-[0.3em] uppercase">03. BASE SILHOUETTE</h3>
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-8">
           {filteredStyles.map(style => (
             <div
               key={style.id}
               onClick={() => !disabled && handleStyleChange(style)}
               className={`${cardBaseClasses} ${selectedStyle?.id === style.id ? selectedCardClasses : unselectedCardClasses} ${disabled ? disabledCardClasses : ''}`}
             >
-              <img src={style.imageUrl} alt={style.name} className="w-full h-32 sm:h-40 object-cover" />
-              <p className="font-semibold text-center p-2 text-sm bg-white border-t border-premium-100">{style.name}</p>
+              <img src={style.imageUrl} alt={style.name} className="w-full h-40 sm:h-52 object-cover transition-transform duration-700 hover:scale-110" />
+              <div className="p-4 bg-studio-50 border-t border-studio-100 flex items-center justify-between">
+                  <span className="text-[10px] font-black tracking-widest uppercase text-studio-900">{style.name}</span>
+                  <div className="w-1.5 h-1.5 bg-studio-300 rounded-full" />
+              </div>
             </div>
           ))}
         </div>
@@ -237,19 +238,19 @@ const PatternSelector: React.FC<PatternSelectorProps> = ({
 
       {/* 4. Sleeve Length Selection */}
       {selectedStyle && (
-        <div className="animate-fade-in mt-6">
-          <h3 className="text-xl font-serif font-medium text-premium-900 mb-4 tracking-wide">4. Select Sleeve Length</h3>
-          <div className="flex gap-2 p-1 bg-premium-100/50 rounded-xl max-w-sm">
+        <div className="animate-fade mt-10">
+          <h3 className="text-xs font-bold text-studio-400 mb-4 tracking-[0.3em] uppercase">04. SLEEVE SPECIFICATION</h3>
+          <div className="flex gap-3 p-1.5 bg-studio-100 rounded-2xl max-w-sm border border-studio-200">
             {(['short', 'long'] as SleeveLength[]).map(sl => (
               <button
                 key={sl}
                 onClick={() => onSleeveLengthChange(sl)}
                 disabled={disabled}
-                className={`w-full py-2 px-4 rounded-md font-semibold transition-colors text-sm ${
-                  sleeveLength === sl ? 'bg-premium-900 text-white shadow' : 'bg-transparent text-premium-600 hover:bg-premium-200'
-                } ${disabled ? 'cursor-not-allowed' : ''}`}
+                className={`w-full py-2.5 px-4 rounded-xl font-bold transition-all text-xs tracking-widest uppercase ${
+                  sleeveLength === sl ? 'bg-studio-900 text-white shadow-xl scale-105' : 'bg-transparent text-studio-500 hover:bg-studio-200'
+                } ${disabled ? 'cursor-not-allowed opacity-50' : ''}`}
               >
-                {sl === 'short' ? 'Short Sleeve' : 'Long Sleeve'}
+                {sl}
               </button>
             ))}
           </div>
@@ -258,50 +259,52 @@ const PatternSelector: React.FC<PatternSelectorProps> = ({
 
       {/* 5. Design Selection */}
       {selectedStyle && (
-        <div className="animate-fade-in mt-6">
-          <h3 className="text-xl font-serif font-medium text-premium-900 mb-4 tracking-wide">5. Select Your Design</h3>
+        <div className="animate-fade mt-12">
+          <h3 className="text-xs font-bold text-studio-400 mb-6 tracking-[0.3em] uppercase">05. PATTERN DETAIL</h3>
           {filteredDesigns.length > 0 ? (
-            <div className="grid grid-cols-3 sm:grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 xs:grid-cols-4 gap-4">
               {filteredDesigns.map(design => (
                 <div
                   key={design.id}
                   onClick={() => !disabled && onDesignSelect(design)}
                   className={`${cardBaseClasses} ${selectedDesign?.id === design.id ? selectedCardClasses : unselectedCardClasses} ${disabled ? disabledCardClasses : ''}`}
                 >
-                  <img src={design.imageUrl} alt={design.name} className="w-full h-24 sm:h-32 object-cover bg-premium-100" />
-                  <p className="font-medium text-center p-1 text-xs bg-white truncate">{design.name}</p>
+                  <img src={design.imageUrl} alt={design.name} className="w-full h-32 object-cover bg-studio-100 p-2 grayscale hover:grayscale-0 transition-all duration-500" />
+                  <div className="p-3 bg-white text-center">
+                      <span className="text-[9px] font-black tracking-widest uppercase truncate block">{design.name}</span>
+                  </div>
                 </div>
               ))}
             </div>
           ) : (
-             <p className="text-sm text-premium-500 p-4 bg-premium-50 rounded-lg">Classic design selected.</p>
+             <div className="p-8 border-2 border-dashed border-studio-200 rounded-3xl text-center">
+                 <p className="text-xs text-studio-400 italic tracking-widest uppercase">Classic Variation Active</p>
+             </div>
           )}
         </div>
       )}
 
       {/* 6. Material Curation */}
-      <div className="mt-12 pt-8 border-t border-premium-100/50">
-        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-6">
+      <div className="mt-16 pt-12 border-t border-studio-200/50">
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-6 mb-8">
             <div>
-                <h3 className="text-2xl font-serif font-medium text-premium-900 tracking-tight">Material Curation</h3>
-                <p className="text-sm text-premium-500 font-light mt-1 italic">Select from our signature textiles or provide your own.</p>
+                <h3 className="text-xs font-bold text-studio-400 mb-2 tracking-[0.3em] uppercase">06. TEXTILE CURATION</h3>
+                <h4 className="text-2xl font-serif text-studio-900 tracking-tight italic">Material Selection</h4>
             </div>
-            <div className="bg-accent/10 text-accent px-3 py-1.5 rounded-full flex items-center gap-2 text-xs font-bold tracking-widest border border-accent/20">
-                <TailorIcon className="w-3.5 h-3.5" /> TAILOR'S STUDIO CHOICE
+            <div className="bg-brand/5 text-brand px-4 py-2 rounded-xl flex items-center gap-3 text-xs font-bold tracking-[0.1em] border border-brand/20">
+                <TailorIcon className="w-4 h-4" /> STUDIO CHOICE
             </div>
         </div>
         
-        <div className="grid grid-cols-2 xs:grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-4">
-          {/* Upload Slot FIRST for the "Bespoke" feel */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 gap-6">
           <label 
             htmlFor="fabric-upload" 
-            className={`group relative flex flex-col items-center justify-center p-4 rounded-2xl border-2 border-dashed transition-all duration-300 ${disabled ? 'bg-premium-50 border-premium-200 text-premium-300' : 'bg-white border-premium-300 text-premium-500 hover:border-accent hover:bg-accent/5 cursor-pointer shadow-sm hover:shadow-md'}`}
+            className={`group flex flex-col items-center justify-center p-6 rounded-[2rem] border-2 border-dashed transition-all duration-300 ${disabled ? 'bg-studio-50 border-studio-200 text-studio-300' : 'bg-white border-studio-300 text-studio-500 hover:border-brand hover:bg-studio-50 cursor-pointer shadow-sm hover:shadow-2xl'}`}
           >
-            <div className="bg-premium-100 group-hover:bg-accent/20 p-3 rounded-full transition-colors">
-                <UploadIcon className="w-6 h-6 text-premium-600 group-hover:text-accent" />
+            <div className="bg-studio-100 group-hover:bg-brand/10 p-5 rounded-full transition-all">
+                <UploadIcon className="w-8 h-8 text-studio-500 group-hover:text-brand" />
             </div>
-            <span className="text-[10px] font-black mt-3 tracking-tighter uppercase">CLIENT'S OWN</span>
-            <p className="text-[8px] opacity-60 mt-0.5">UPLOAD TEXTILE</p>
+            <span className="text-[10px] font-black mt-5 tracking-[0.2em] uppercase">CLIENT OWN</span>
             <input id="fabric-upload" type="file" className="hidden" accept="image/png, image/jpeg, image/webp" onChange={handleFabricUpload} disabled={disabled} />
           </label>
 
@@ -309,23 +312,17 @@ const PatternSelector: React.FC<PatternSelectorProps> = ({
             <div 
               key={fabric.id} 
               onClick={() => !disabled && onFabricSelect(fabric)} 
-              className={`group relative rounded-2xl overflow-hidden cursor-pointer transition-all duration-500 transform hover:-translate-y-1 ${selectedFabric?.id === fabric.id ? 'ring-2 ring-accent ring-offset-2 scale-[1.02] shadow-xl' : 'border border-premium-100 hover:shadow-lg'} ${disabled ? disabledCardClasses : ''}`}
+              className={`group relative rounded-[2rem] overflow-hidden cursor-pointer transition-all duration-500 transform hover:-translate-y-2 ${selectedFabric?.id === fabric.id ? 'ring-4 ring-brand ring-offset-4 scale-105 shadow-2xl' : 'border border-studio-100 hover:shadow-xl'} ${disabled ? disabledCardClasses : ''}`}
             >
-              <img src={fabric.imageUrl} alt={fabric.name} className="w-full h-32 object-cover transition-transform duration-700 group-hover:scale-110" />
-              <div className={`absolute inset-0 bg-black/10 group-hover:bg-black/0 transition-colors ${selectedFabric?.id === fabric.id ? 'bg-accent/10 bg-opacity-10' : ''}`} />
-              <div className="absolute inset-x-0 bottom-0 bg-linear-to-t from-black/80 via-black/30 to-transparent p-3">
-                <span className="text-white text-[9px] font-black tracking-widest uppercase truncate block">{fabric.name}</span>
-                <p className="text-white/60 text-[7px] uppercase tracking-tighter mt-0.5">Premium Swatch</p>
+              <img src={fabric.imageUrl} alt={fabric.name} className="w-full h-40 object-cover grayscale-[0.5] group-hover:grayscale-0 transition-all duration-1000 group-hover:scale-110" />
+              <div className="absolute inset-x-0 bottom-0 bg-linear-to-t from-studio-900/90 via-studio-900/40 to-transparent p-5">
+                <span className="text-studio-50 text-[10px] font-black tracking-widest uppercase truncate block">{fabric.name}</span>
+                <p className="text-studio-400 text-[8px] uppercase tracking-widest mt-1">Studio Swatch</p>
               </div>
-              {selectedFabric?.id === fabric.id && (
-                  <div className="absolute top-2 right-2 bg-accent text-white p-1 rounded-full shadow-lg h-5 w-5 flex items-center justify-center">
-                      <div className="w-1.5 h-1.5 bg-white rounded-full animate-ping" />
-                  </div>
-              )}
             </div>
           ))}
         </div>
-        {error && <p className="text-sm text-red-600 mt-4 animate-shake">{error}</p>}
+        {error && <p className="text-xs text-red-500 mt-6 animate-shake font-bold tracking-widest uppercase text-center">{error}</p>}
       </div>
     </div>
   );

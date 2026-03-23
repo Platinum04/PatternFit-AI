@@ -1,5 +1,5 @@
 import React, { useRef, useEffect, useState, useCallback } from 'react';
-import { CameraIcon, RefreshIcon } from './Icons';
+import { CameraIcon, RefreshIcon, TailorIcon } from './Icons';
 
 interface CameraCaptureProps {
     onCapture: (file: File, base64: string, mimeType: string) => void;
@@ -11,22 +11,31 @@ const CameraCapture: React.FC<CameraCaptureProps> = ({ onCapture, onClose, messa
     const videoRef = useRef<HTMLVideoElement>(null);
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const [stream, setStream] = useState<MediaStream | null>(null);
-    const [capturedImage, setCapturedImage] = useState<string | null>(null);
+    const [isCameraReady, setIsCameraReady] = useState(false);
+    const [isCapturing, setIsCapturing] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
     const startCamera = useCallback(async () => {
+        setError(null);
         try {
             const mediaStream = await navigator.mediaDevices.getUserMedia({ 
-                video: { facingMode: 'user' },
+                video: { 
+                    facingMode: 'user',
+                    width: { ideal: 1920 },
+                    height: { ideal: 1080 }
+                },
                 audio: false 
             });
             setStream(mediaStream);
             if (videoRef.current) {
                 videoRef.current.srcObject = mediaStream;
+                videoRef.current.onloadedmetadata = () => {
+                    setIsCameraReady(true);
+                };
             }
         } catch (err) {
             console.error("Error accessing camera:", err);
-            setError("Could not access the camera. Please check your browser permissions.");
+            setError("HARDWARE_IO_ERROR: Camera mapping failed.");
         }
     }, []);
 
@@ -42,92 +51,117 @@ const CameraCapture: React.FC<CameraCaptureProps> = ({ onCapture, onClose, messa
         return () => {
             stopCamera();
         };
-    }, [startCamera, stopCamera]);
+    }, []);
 
-    const handleCapture = useCallback(() => {
-        if (videoRef.current && canvasRef.current) {
-            const video = videoRef.current;
-            const canvas = canvasRef.current;
+    const capturePhoto = () => {
+        if (!videoRef.current || !canvasRef.current) return;
+        setIsCapturing(true);
+
+        const video = videoRef.current;
+        const canvas = canvasRef.current;
+        const context = canvas.getContext('2d');
+
+        if (context) {
             canvas.width = video.videoWidth;
             canvas.height = video.videoHeight;
-            const context = canvas.getContext('2d');
-            if (context) {
-                context.drawImage(video, 0, 0, video.videoWidth, video.videoHeight);
-                const dataUrl = canvas.toDataURL('image/jpeg');
-                setCapturedImage(dataUrl);
-                stopCamera();
-            }
-        }
-    }, [stopCamera]);
+            context.drawImage(video, 0, 0, canvas.width, canvas.height);
 
-    const handleRetake = useCallback(() => {
-        setCapturedImage(null);
-        setError(null);
-        startCamera();
-    }, [startCamera]);
-
-    const handleUsePhoto = useCallback(() => {
-        if (capturedImage) {
-            const base64 = capturedImage.split(',')[1];
-            fetch(capturedImage)
-                .then(res => res.blob())
-                .then(blob => {
-                    const file = new File([blob], `capture-${Date.now()}.jpg`, { type: 'image/jpeg' });
-                    onCapture(file, base64, 'image/jpeg');
-                    onClose();
-                });
+            const base64 = canvas.toDataURL('image/jpeg', 0.9);
+            const base64Data = base64.split(',')[1];
+            
+            // Artificial delay for 'Studio Analysis' feel
+            setTimeout(() => {
+                onCapture(new File([], 'live_capture.jpg', { type: 'image/jpeg' }), base64Data, 'image/jpeg');
+                setIsCapturing(false);
+            }, 800);
         }
-    }, [capturedImage, onCapture, onClose]);
+    };
 
     return (
-        <div className="fixed inset-0 bg-black bg-opacity-80 flex flex-col items-center justify-center z-50 p-4">
-            <div className="relative w-full max-w-lg bg-premium-800 rounded-lg shadow-xl overflow-hidden">
-                <button onClick={onClose} className="absolute top-2 right-2 z-10 text-white bg-premium-700 bg-opacity-50 rounded-full p-2 hover:bg-opacity-75">&times;</button>
-                {error && (
-                    <div className="p-8 text-center text-red-400">
-                        <p>{error}</p>
-                        <button onClick={onClose} className="mt-4 px-4 py-2 bg-premium-900 text-white rounded-lg">Close</button>
+        <div className="fixed inset-0 z-[2000] bg-studio-900 flex flex-col items-center justify-center p-4 animate-fade">
+            <div className="w-full max-w-4xl flex flex-col h-full max-h-[90vh]">
+                <div className="flex justify-between items-center mb-6 px-4">
+                    <div className="flex items-center gap-3">
+                        <div className="bg-brand p-1.5 rounded-lg">
+                            <TailorIcon className="w-4 h-4 text-white" />
+                        </div>
+                        <div>
+                            <h2 className="text-white text-[10px] font-black tracking-[0.4em] uppercase">VIEWPORT_LIVE_LENS</h2>
+                            <p className="text-studio-500 text-[8px] font-mono tracking-widest mt-1 opacity-80 uppercase">STREAM_BUFFER_INIT</p>
+                        </div>
                     </div>
-                )}
-                {!error && (
-                    <>
-                        <div className="relative aspect-w-3 aspect-h-4">
-                            {capturedImage ? (
-                                <img src={capturedImage} alt="Captured" className="w-full h-full object-contain" />
-                            ) : (
-                                <>
-                                    <video ref={videoRef} autoPlay playsInline className="w-full h-full object-cover transform -scale-x-100"></video>
-                                    {message && (
-                                        <div className="absolute top-12 left-0 right-0 p-4 text-center z-20">
-                                            <span className="bg-black/60 text-white px-4 py-2 rounded-full text-sm font-medium backdrop-blur-sm shadow-lg border border-white/20">
-                                                {message}
-                                            </span>
-                                        </div>
-                                    )}
-                                </>
-                            )}
+                    <button onClick={onClose} className="text-studio-400 hover:text-white transition-colors text-xs font-black tracking-[0.2em] uppercase p-2">TERMINATE_LINK</button>
+                </div>
+
+                <div className="relative grow bg-black rounded-[2.5rem] overflow-hidden shadow-2xl border border-studio-800">
+                    <video 
+                        ref={videoRef} 
+                        autoPlay 
+                        playsInline 
+                        muted 
+                        className={`w-full h-full object-cover transform -scale-x-100 transition-opacity duration-1000 ${isCameraReady ? 'opacity-100' : 'opacity-0'}`}
+                    />
+                    <canvas ref={canvasRef} className="hidden" />
+                    
+                    {/* Viewport Graphics (CAD Style) */}
+                    <div className="absolute inset-0 pointer-events-none p-12 flex flex-col justify-between border-[1px] border-white/10 m-8 rounded-4xl">
+                        <div className="flex justify-between opacity-30">
+                            <div className="w-10 h-10 border-t-2 border-l-2 border-brand" />
+                            <div className="w-10 h-10 border-t-2 border-r-2 border-brand" />
                         </div>
-                        <canvas ref={canvasRef} className="hidden"></canvas>
-                        
-                        <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 p-4 flex justify-center gap-4">
-                            {capturedImage ? (
-                                <>
-                                    <button onClick={handleRetake} className="inline-flex items-center gap-2 px-6 py-3 bg-premium-600 text-white font-semibold rounded-lg shadow-md hover:bg-premium-700 transition">
-                                        <RefreshIcon className="w-5 h-5" />
-                                        Retake
-                                    </button>
-                                    <button onClick={handleUsePhoto} className="inline-flex items-center gap-2 px-6 py-3 bg-premium-900 text-white font-semibold rounded-lg shadow-md hover:bg-premium-800 transition">
-                                        Use Photo
-                                    </button>
-                                </>
-                            ) : (
-                                <button onClick={handleCapture} className="p-4 bg-white rounded-full text-premium-900 hover:bg-premium-200 transition transform hover:scale-110 shadow-lg">
-                                    <CameraIcon className="w-8 h-8" />
-                                </button>
-                            )}
+                        <div className="flex flex-col items-center gap-4">
+                            <div className="w-[1px] h-32 bg-brand/20 animate-pulse" />
+                            <div className="px-5 py-2.5 bg-studio-900/60 backdrop-blur rounded-full border border-brand/20">
+                                <span className="text-white text-[9px] font-black tracking-[0.4em] uppercase">ALIGN_CENTER_VECTORS</span>
+                            </div>
                         </div>
-                    </>
-                )}
+                        <div className="flex justify-between opacity-30">
+                            <div className="w-10 h-10 border-b-2 border-l-2 border-brand" />
+                            <div className="w-10 h-10 border-b-2 border-r-2 border-brand" />
+                        </div>
+                    </div>
+
+                    {!isCameraReady && !error && (
+                        <div className="absolute inset-0 flex flex-col items-center justify-center bg-studio-900 gap-6">
+                            <div className="w-16 h-16 border-b-2 border-brand rounded-full animate-spin"></div>
+                            <span className="text-studio-500 text-[10px] font-black tracking-widest uppercase">INITIALIZING_HARDWARE...</span>
+                        </div>
+                    )}
+
+                    {error && (
+                        <div className="absolute inset-0 flex flex-col items-center justify-center bg-studio-900 text-center px-12 gap-6">
+                            <p className="text-red-500 font-mono text-xs tracking-widest uppercase">{error}</p>
+                            <button onClick={onClose} className="px-10 py-4 border-2 border-white text-white text-[10px] font-black rounded-full tracking-widest uppercase hover:bg-white hover:text-studio-900 transition-all">EXIT_VIEWPORT</button>
+                        </div>
+                    )}
+
+                    {isCapturing && (
+                        <div className="absolute inset-0 flex items-center justify-center bg-brand/20 backdrop-blur-md z-50">
+                             <div className="bg-white p-12 rounded-4xl shadow-2xl flex flex-col items-center gap-6 animate-fade">
+                                <div className="w-16 h-16 border-b-2 border-brand rounded-full animate-spin"></div>
+                                <span className="text-[10px] font-black text-studio-900 tracking-widest uppercase">CAPTURING_DATA</span>
+                             </div>
+                        </div>
+                    )}
+                </div>
+
+                <div className="py-12 flex flex-col items-center gap-8">
+                    {message && (
+                        <div className="bg-brand/10 text-brand px-6 py-2.5 rounded-full text-[10px] font-black tracking-widest border border-brand/20 uppercase">
+                            {message}
+                        </div>
+                    )}
+                    <button 
+                        onClick={capturePhoto}
+                        disabled={!isCameraReady || isCapturing}
+                        className={`w-24 h-24 rounded-full border-4 flex items-center justify-center transition-all duration-500 group active:scale-90
+                            ${isCameraReady ? 'border-brand bg-white/5 hover:bg-brand/10' : 'border-studio-800 bg-studio-900'}
+                        `}
+                    >
+                        <div className={`w-16 h-16 rounded-full transition-all duration-300 ${isCameraReady ? 'bg-white shadow-2xl group-hover:scale-110' : 'bg-studio-800'}`} />
+                    </button>
+                    <span className="text-[10px] font-black text-studio-500 tracking-[0.5em] uppercase">TRIGGER_SHUTTER</span>
+                </div>
             </div>
         </div>
     );

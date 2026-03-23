@@ -1,6 +1,5 @@
 import React from 'react';
-import Header from './Header'; 
-import { SparklesIcon } from './Icons';
+import { SparklesIcon, TailorIcon } from './Icons';
 
 interface OnboardingProps {
   onStart: () => void;
@@ -8,27 +7,40 @@ interface OnboardingProps {
 
 const Onboarding: React.FC<OnboardingProps> = ({ onStart }) => {
   return (
-    <div className="fixed inset-0 bg-premium-950/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div className="w-full max-w-lg mx-auto bg-premium-50 rounded-3xl shadow-2xl shadow-premium-900/50 p-8 sm:p-14 text-center transform transition-all duration-500 scale-95 hover:scale-100 border border-premium-200">
-        <div className="flex justify-center mb-4">
-          <Header />
+    <div className="fixed inset-0 bg-studio-900 flex items-center justify-center z-[5000] p-6 overflow-hidden">
+      {/* Background CAD Grid Effect */}
+      <div className="absolute inset-0 opacity-10 pointer-events-none" 
+           style={{ backgroundImage: 'radial-gradient(circle, #6366f1 1px, transparent 1px)', backgroundSize: '40px 40px' }} />
+      
+      <div className="w-full max-w-xl mx-auto bg-white rounded-[3rem] shadow-[0_50px_100px_-20px_rgba(0,0,0,0.5)] p-10 sm:p-20 text-center relative border border-studio-200 animate-fade">
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-brand p-5 rounded-[2rem] shadow-2xl">
+          <TailorIcon className="w-10 h-10 text-white" />
         </div>
         
-        <h1 className="text-3xl sm:text-4xl font-serif text-premium-900 mt-6 tracking-wide leading-tight">
-          Welcome to the Future of Tailoring
-        </h1>
+        <div className="space-y-4 mb-10">
+            <h2 className="text-[10px] font-black tracking-[0.5em] text-studio-400 uppercase">SYSTEM_INITIALIZATION</h2>
+            <h1 className="text-4xl sm:text-5xl font-serif text-studio-900 tracking-tight leading-tight italic">
+              PatternFit <span className="text-brand">AI</span>
+            </h1>
+            <p className="text-[10px] font-black tracking-[0.3em] text-studio-400 uppercase">Virtual Tailor Workspace v1.0</p>
+        </div>
         
-        <p className="text-premium-600 mt-6 leading-relaxed text-lg font-light">
-          PatternFit AI is your personal virtual tailor for the modern African wardrobe. Eliminate the uncertainty of bespoke fashion by seeing your chosen style and fabric on yourself before a single stitch is sewn.
+        <div className="w-12 h-1 bg-brand mx-auto rounded-full mb-10" />
+
+        <p className="text-studio-600 leading-relaxed text-lg font-light font-serif">
+          Experience the high-precision intersection of <span className="text-studio-900 font-bold">African Bespoke Craftsmanship</span> and <span className="text-studio-900 font-bold">Neural Design Rendering</span>. 
         </p>
 
-        <button
-          onClick={onStart}
-          className="mt-10 inline-flex items-center gap-3 w-full sm:w-auto justify-center px-10 py-4 bg-premium-900 text-white font-medium text-lg rounded-full shadow-lg shadow-premium-900/30 hover:bg-premium-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-premium-900 transition-all duration-300 transform hover:-translate-y-1"
-        >
-          <SparklesIcon className="w-6 h-6" />
-          Get Started
-        </button>
+        <div className="mt-14 space-y-6">
+            <button
+              onClick={onStart}
+              className="inline-flex items-center gap-4 w-full justify-center px-12 py-5 bg-studio-900 text-white font-black text-xs tracking-[0.3em] rounded-full shadow-2xl hover:bg-brand transition-all duration-500 transform hover:-translate-y-2 uppercase group"
+            >
+              <SparklesIcon className="w-5 h-5 group-hover:rotate-12 transition-transform" />
+              Initialize Workspace
+            </button>
+            <p className="text-[9px] text-studio-400 font-mono tracking-widest uppercase">READY_FOR_DEPLOYMENT</p>
+        </div>
       </div>
     </div>
   );

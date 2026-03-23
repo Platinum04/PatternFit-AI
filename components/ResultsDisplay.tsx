@@ -19,7 +19,6 @@ interface ResultsDisplayProps {
   stylistComments?: StylistComment[];
 }
 
-// Helper to convert a data URL to a File object for the Web Share API
 const dataURLtoFile = (dataurl: string, filename: string): File | null => {
     const arr = dataurl.split(',');
     if (arr.length < 2) return null;
@@ -35,7 +34,6 @@ const dataURLtoFile = (dataurl: string, filename: string): File | null => {
     return new File([u8arr], filename, { type: mime });
 };
 
-
 const ResultsDisplay: React.FC<ResultsDisplayProps> = ({ 
   originalImage, generatedImage, feedback, measurements, 
   style, fabric, design, gender, onReset, isSavedView = false, onClose,
@@ -45,32 +43,31 @@ const ResultsDisplay: React.FC<ResultsDisplayProps> = ({
   const handleDownload = useCallback(() => {
     const link = document.createElement('a');
     link.href = generatedImage;
-    link.download = `patternfit-ai-${style.id}-${fabric.id}.png`;
+    link.download = `patternfit-studio-${Date.now()}.png`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-  }, [generatedImage, style.id, fabric.id]);
-  
+  }, [generatedImage]);
+
   const handleShare = useCallback(async () => {
-    const imageFile = dataURLtoFile(generatedImage, `PatternFit-AI-Design.png`);
+    const imageFile = dataURLtoFile(generatedImage, `PatternFit-Studio-Output.png`);
     if (imageFile && navigator.share) {
         try {
             await navigator.share({
-                title: 'PatternFit AI Design',
-                text: `Check out this custom ${style.name} I designed with PatternFit AI!`,
+                title: 'PatternFit AI Studio Render',
+                text: `View my custom design specs!`,
                 files: [imageFile],
             });
         } catch (error) {
             console.error('Error sharing:', error);
-            // Fallback for browsers that canShare but fail, or for specific errors.
-            alert('Could not share the image at this time.');
         }
     } else {
-        alert('Sharing is not supported on this browser.');
+        handleDownload();
     }
-  }, [generatedImage, style.name]);
+  }, [generatedImage, handleDownload]);
 
   const [isGeneratingPdf, setIsGeneratingPdf] = React.useState(false);
+  
   const handleGeneratePdf = async () => {
     setIsGeneratingPdf(true);
     try {
@@ -86,148 +83,132 @@ const ResultsDisplay: React.FC<ResultsDisplayProps> = ({
             feedback
         );
     } catch (error) {
-        console.error("Failed to generate PDF specification:", error);
-        alert("There was an error generating your tailor specification. Please try again.");
+        console.error("PDF generation failed:", error);
+        alert("Failed to generate PDF. Please try again.");
     } finally {
         setIsGeneratingPdf(false);
     }
   };
 
-  const bustOrChestLabel = gender === 'female' ? 'Bust' : 'Chest';
-  const measurementTitle = 'Your Estimated Measurements';
-
-  const formatLabel = (key: string): string => {
-    if (key === 'bust') return bustOrChestLabel;
-    return key
-      .replace(/([A-Z])/g, ' $1')
-      .replace(/^./, (str) => str.toUpperCase());
-  };
-
-  const MainActionButton = isSavedView ? (
-    <button
-        onClick={onClose}
-        className="inline-flex items-center gap-2 px-8 py-3 bg-premium-900 text-white font-medium rounded-full shadow-lg hover:bg-premium-800 hover:shadow-premium-900/30 transition-all duration-300 transform hover:-translate-y-1 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-premium-900"
-    >
-        Close
-    </button>
-  ) : (
-    <button
-        onClick={onReset}
-        className="inline-flex items-center gap-2 px-8 py-3 bg-premium-900 text-white font-medium rounded-full shadow-lg hover:bg-premium-800 hover:shadow-premium-900/30 transition-all duration-300 transform hover:-translate-y-1 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-premium-900"
-    >
-        <RefreshIcon className="w-5 h-5" />
-        Start a New Fitting
-    </button>
-  );
-
   return (
-    <div className="animate-fade-in">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-        <div>
-            <h3 className="text-center font-serif text-2xl mb-4 text-premium-900 tracking-wide">Original Photo</h3>
-            <img src={originalImage} alt="Original user" className="rounded-3xl shadow-xl shadow-premium-900/10 w-full object-contain bg-premium-50 border border-premium-100" />
+    <div className="animate-fade grid grid-cols-1 lg:grid-cols-12 gap-10">
+      {/* Left Column: Visual Canvas */}
+      <div className="lg:col-span-7 space-y-8">
+        <div className="grid grid-cols-2 gap-4">
+             <div className="relative group rounded-3xl overflow-hidden border border-studio-200 bg-studio-50 shadow-2xl">
+                <img src={originalImage} alt="Input" className="w-full aspect-[3/4] object-cover" />
+                <div className="absolute top-4 left-4 bg-studio-900/80 backdrop-blur px-3 py-1 text-[10px] text-white font-black tracking-widest uppercase">INPUT_SOURCE</div>
+             </div>
+             <div className="relative group rounded-3xl overflow-hidden border border-studio-200 bg-studio-50 shadow-2xl">
+                <img src={generatedImage} alt="Studio Render" className="w-full aspect-[3/4] object-cover" />
+                <div className="absolute top-4 left-4 bg-brand px-3 py-1 text-[10px] text-white font-black tracking-widest uppercase">STUDIO_RENDER</div>
+             </div>
         </div>
-        <div>
-            <h3 className="text-center font-serif text-2xl mb-4 text-premium-900 tracking-wide">Your Virtual Try-On</h3>
-            <img src={generatedImage} alt="Virtual try-on" className="rounded-3xl shadow-xl shadow-premium-900/10 w-full object-contain bg-premium-50 border border-premium-100" />
+
+        <div className="p-8 bg-studio-50 rounded-4xl border border-studio-200 flex flex-wrap gap-4 items-center justify-between">
+            <div className="flex gap-4">
+                <button onClick={handleDownload} className="flex flex-col items-center gap-2 group">
+                    <div className="p-4 bg-studio-900 text-white rounded-2xl group-hover:bg-brand transition-all shadow-lg group-active:scale-90">
+                        <DownloadIcon className="w-5 h-5" />
+                    </div>
+                    <span className="text-[9px] font-black text-studio-400 tracking-widest uppercase">GEN_EXPORT</span>
+                </button>
+                <button onClick={handleShare} className="flex flex-col items-center gap-2 group">
+                    <div className="p-4 bg-white text-studio-900 border border-studio-200 rounded-2xl group-hover:bg-studio-100 transition-all shadow-sm group-active:scale-90">
+                        <ShareIcon className="w-5 h-5" />
+                    </div>
+                    <span className="text-[9px] font-black text-studio-400 tracking-widest uppercase">HUB_SHARE</span>
+                </button>
+            </div>
+
+            <button
+                onClick={handleGeneratePdf}
+                disabled={isGeneratingPdf}
+                className="flex items-center gap-3 px-8 py-4 bg-brand text-white rounded-full font-black text-xs tracking-widest shadow-2xl shadow-brand/20 hover:bg-studio-900 transition-all uppercase group"
+            >
+                <TailorIcon className="w-4 h-4 group-hover:rotate-12 transition-transform" />
+                {isGeneratingPdf ? 'EXPORTING...' : 'DOWNLOAD SPEC SHEET'}
+            </button>
         </div>
       </div>
 
-      <div className="mt-10 grid grid-cols-1 lg:grid-cols-2 gap-8">
-        <div className="bg-premium-50/50 p-8 rounded-3xl border border-premium-200 shadow-sm">
-          <h3 className="text-2xl font-serif text-premium-900 flex items-center gap-3 mb-6 tracking-wide">
-            <RulerIcon className="w-6 h-6 text-accent" />
-            {measurementTitle}
-          </h3>
-          <ul className="space-y-4 text-lg">
-             {Object.entries(measurements).map(([key, value]) => {
-                if (value === undefined || value === null) return null;
-                return (
-                   <li key={key} className="flex justify-between items-center border-b border-premium-200/50 pb-2 last:border-0 last:pb-0">
-                    <span className="font-medium text-premium-600">{formatLabel(key)}:</span>
-                    <span className="font-mono text-premium-900 font-semibold">{value} inches</span>
-                  </li>
-                );
-             })}
-          </ul>
-        </div>
-        
-        <div className="bg-premium-50/50 p-8 rounded-3xl border border-premium-200 shadow-sm">
-          <h3 className="text-2xl font-serif text-premium-900 flex items-center gap-3 mb-6 tracking-wide">
-            <TailorIcon className="w-6 h-6 text-accent" />
-            AI Tailor's Assessment
-          </h3>
-          <p className="text-premium-950 leading-relaxed mb-4">
-             {feedback.overallImpression}
-          </p>
-          <div className="space-y-3 border-t border-premium-200 pt-3">
-              <div className="flex items-start">
-                  <BodyOutlineIcon className="w-5 h-5 text-premium-900 mt-1 mr-3 shrink-0" />
-                  <div>
-                      <h4 className="font-semibold text-premium-900">Fit Analysis</h4>
-                      <p className="text-sm text-premium-950">{feedback.fitAnalysis}</p>
-                  </div>
-              </div>
-               <div className="flex items-start">
-                  <FabricIcon className="w-5 h-5 text-premium-900 mt-1 mr-3 shrink-0" />
-                  <div>
-                      <h4 className="font-semibold text-premium-900">Fabric Choice</h4>
-                      <p className="text-sm text-premium-950">{feedback.fabricChoice}</p>
-                  </div>
-              </div>
-              <div className="flex items-start">
-                  <LightbulbIcon className="w-5 h-5 text-premium-900 mt-1 mr-3 shrink-0" />
-                  <div>
-                      <h4 className="font-semibold text-premium-900">Style Tip</h4>
-                      <p className="text-premium-700 leading-relaxed italic">"{feedback.styleTip}"</p>
-                  </div>
-              </div>
-          </div>
+      {/* Right Column: Attribute Panels */}
+      <div className="lg:col-span-5 space-y-6">
+        <div className="p-8 bg-white border border-studio-200 rounded-4xl shadow-xl">
+           <div className="flex items-center gap-3 mb-8 border-b border-studio-100 pb-4">
+               <RulerIcon className="w-5 h-5 text-brand" />
+               <h3 className="text-[11px] font-black text-studio-500 tracking-[0.3em] uppercase">SYSTEM_SPECIFICATIONS</h3>
+           </div>
+           
+           <div className="grid grid-cols-2 gap-y-6 gap-x-8">
+                <div>
+                   <p className="text-[9px] font-black text-studio-400 tracking-widest uppercase mb-1">Style</p>
+                   <p className="text-sm font-bold text-studio-900 truncate uppercase">{style.name}</p>
+                </div>
+                <div>
+                   <p className="text-[9px] font-black text-studio-400 tracking-widest uppercase mb-1">Textile</p>
+                   <p className="text-sm font-bold text-studio-900 truncate uppercase">{fabric.name}</p>
+                </div>
+                <div>
+                   <p className="text-[9px] font-black text-studio-400 tracking-widest uppercase mb-1">Gender</p>
+                   <p className="text-sm font-bold text-studio-900 uppercase">{gender}</p>
+                </div>
+                <div>
+                   <p className="text-[9px] font-black text-studio-400 tracking-widest uppercase mb-1">Variation</p>
+                   <p className="text-sm font-bold text-studio-900 uppercase">{sleeveLength}</p>
+                </div>
+           </div>
 
-          {stylistComments && stylistComments.length > 0 && (
-              <div className="bg-accent/5 p-6 rounded-2xl border border-accent/20 mb-8 animate-fade-in">
-                  <div className="flex items-center gap-2 mb-4">
-                      <div className="bg-accent text-white p-1 rounded-full">
-                          <SparklesIcon className="w-4 h-4" />
-                      </div>
-                      <h4 className="text-lg font-serif font-medium text-accent">Expert Stylist Consultation</h4>
-                  </div>
-                  {stylistComments.map(comment => (
-                      <div key={comment.id} className="bg-white p-4 rounded-xl shadow-sm border border-accent/10 mb-2">
-                          <p className="text-premium-800 text-sm leading-relaxed">{comment.content}</p>
-                          <p className="text-[10px] text-premium-400 mt-2 uppercase tracking-widest">{new Date(comment.createdAt).toLocaleDateString()}</p>
-                      </div>
-                  ))}
-              </div>
-          )}
+           <div className="mt-10 p-6 bg-studio-100 rounded-2xl border border-studio-200">
+               <h4 className="text-[10px] font-black text-studio-400 tracking-widest uppercase mb-4 flex items-center gap-2">
+                   <BodyOutlineIcon className="w-4 h-4" /> METRIC_ANALYSIS
+               </h4>
+               <div className="grid grid-cols-2 gap-4">
+                    {Object.entries(measurements).map(([key, val]) => (
+                        <div key={key} className="flex justify-between items-center py-2 border-b border-studio-200 last:border-0 grow">
+                            <span className="text-[10px] text-studio-500 uppercase font-bold tracking-tighter">{key}</span>
+                            <span className="text-xs font-mono font-black text-studio-900">{val}"</span>
+                        </div>
+                    ))}
+               </div>
+           </div>
         </div>
-      </div>
-      
-      <div className="mt-12 flex justify-center items-center gap-4 flex-wrap pb-8">
-        <button
-            onClick={handleShare}
-            className="inline-flex items-center gap-2 px-8 py-3 bg-premium-100 text-premium-800 font-medium rounded-full shadow-md hover:bg-premium-200 transition-all duration-300 transform hover:-translate-y-1 border border-premium-200"
-        >
-          <ShareIcon className="w-5 h-5 opacity-70" />
-          Share
-        </button>
-        <button
-          onClick={handleDownload}
-          className="inline-flex items-center gap-2 px-8 py-3 bg-premium-100 text-premium-800 font-medium rounded-full shadow-md hover:bg-premium-200 transition-all duration-300 transform hover:-translate-y-1 border border-premium-200"
-        >
-          <DownloadIcon className="w-5 h-5 opacity-70" />
-          Save Image
-        </button>
 
-        <button
-          onClick={handleGeneratePdf}
-          disabled={isGeneratingPdf}
-          className="inline-flex items-center gap-2 px-8 py-3 bg-accent text-white font-medium rounded-full shadow-lg hover:bg-accent-dark transition-all duration-300 transform hover:-translate-y-1 shadow-accent/20 disabled:opacity-50 disabled:transform-none"
-        >
-          <DownloadIcon className={`w-5 h-5 ${isGeneratingPdf ? 'animate-spin' : ''}`} />
-          {isGeneratingPdf ? 'Generating...' : 'Generate Specification'}
-        </button>
-        {MainActionButton}
+        <div className="p-8 bg-brand/5 border border-brand/10 rounded-4xl">
+            <div className="flex items-start gap-4">
+                <div className="bg-brand text-white p-2 rounded-xl">
+                    <LightbulbIcon className="w-5 h-5" />
+                </div>
+                <div>
+                    <h4 className="text-[10px] font-black text-brand tracking-widest uppercase mb-2">STUDIO_INSIGHT</h4>
+                    <p className="text-sm font-serif italic text-studio-800 leading-relaxed">"{feedback.styleTip}"</p>
+                </div>
+            </div>
+        </div>
+
+        {stylistComments && stylistComments.length > 0 && (
+            <div className="space-y-4">
+                <h4 className="text-[10px] font-black text-studio-400 tracking-widest uppercase ml-2">EXPERT FEEDBACK</h4>
+                {stylistComments.map(comment => (
+                    <div key={comment.id} className="p-8 bg-studio-900 text-white rounded-4xl shadow-2xl animate-fade">
+                        <p className="text-xs font-light leading-relaxed opacity-90">{comment.content}</p>
+                        <div className="mt-6 flex items-center justify-between border-t border-studio-700 pt-4">
+                            <span className="text-[10px] font-black tracking-widest text-brand">{comment.author.toUpperCase()}</span>
+                            <SparklesIcon className="w-4 h-4 text-brand" />
+                        </div>
+                    </div>
+                ))}
+            </div>
+        )}
+
+        <div className="pt-6">
+            <button 
+                onClick={onReset}
+                className="w-full py-4 bg-white border-2 border-studio-900 text-studio-900 rounded-full font-black text-[10px] tracking-[0.3em] uppercase hover:bg-studio-900 hover:text-white transition-all shadow-xl"
+            >
+                START_NEW_SESSION
+            </button>
+        </div>
       </div>
     </div>
   );
