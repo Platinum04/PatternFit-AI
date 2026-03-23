@@ -4,14 +4,19 @@ import { WardrobeIcon, InfoIcon, TailorIcon } from './Icons';
 interface HeaderProps {
   onWardrobeClick?: () => void;
   onAboutClick?: () => void;
+  onHomeClick?: () => void;
 }
 
-const Header: React.FC<HeaderProps> = ({ onWardrobeClick, onAboutClick }) => (
-  <header className="fixed top-0 left-0 right-0 z-[100] h-16 bg-studio-900 text-white flex items-center justify-between px-6 border-b border-studio-800 backdrop-blur-md bg-opacity-95">
-    <div className="flex items-center gap-3">
-        <TailorIcon className="w-8 h-8 text-brand" />
+const Header: React.FC<HeaderProps> = ({ onWardrobeClick, onAboutClick, onHomeClick }) => (
+  <header className="fixed top-0 left-0 right-0 z-[100] h-16 bg-[#111111] text-white flex items-center justify-between px-6 border-b border-studio-800 backdrop-blur-md bg-opacity-95">
+    <div 
+        className="flex items-center gap-3 cursor-pointer group hover:opacity-80 transition-opacity"
+        onClick={onHomeClick}
+        aria-label="Return to Landing Page"
+    >
+        <TailorIcon className="w-8 h-8 text-white group-hover:scale-110 transition-transform" />
         <div className="flex flex-col">
-            <h1 className="text-xl font-serif tracking-[0.2em] font-medium leading-tight">PATTERNFIT <span className="text-brand">AI</span></h1>
+            <h1 className="text-xl font-serif tracking-[0.2em] font-medium leading-tight">PATTERNFIT <span className="text-gray-400">AI</span></h1>
             <span className="text-[10px] tracking-[0.3em] font-bold text-studio-400 uppercase">Virtual Tailor Studio</span>
         </div>
     </div>

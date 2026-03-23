@@ -87,18 +87,16 @@ const App: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    // Resetting token check for the new v2 landing page deployment
-    const onboardingStatus = localStorage.getItem('patternfit-onboarded-v2');
-    if (onboardingStatus === 'true') {
-      setHasOnboarded(true);
-    }
     setSavedFits(getSavedFits());
     setCollections(getCollections());
   }, []);
 
   const handleOnboarding = () => {
-    localStorage.setItem('patternfit-onboarded-v2', 'true');
     setHasOnboarded(true);
+  };
+
+  const handleGoHome = () => {
+    setHasOnboarded(false);
   };
 
   const handleImageUpload = useCallback((file: File, base64: string, mimeType: string) => {
@@ -288,7 +286,7 @@ const App: React.FC = () => {
           )}
       {isAboutModalOpen && <AboutModal isOpen={isAboutModalOpen} onClose={() => setIsAboutModalOpen(false)} />}
       
-      <Header onWardrobeClick={() => setIsWardrobeOpen(true)} onAboutClick={() => setIsAboutModalOpen(true)} />
+      <Header onWardrobeClick={() => setIsWardrobeOpen(true)} onAboutClick={() => setIsAboutModalOpen(true)} onHomeClick={handleGoHome} />
       
       <main className="w-full max-w-5xl">
         <div className="bg-white p-8 sm:p-16 border border-studio-200 shadow-sm rounded-sm">
