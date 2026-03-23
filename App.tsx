@@ -87,7 +87,8 @@ const App: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    const onboardingStatus = localStorage.getItem('patternfit-onboarded');
+    // Resetting token check for the new v2 landing page deployment
+    const onboardingStatus = localStorage.getItem('patternfit-onboarded-v2');
     if (onboardingStatus === 'true') {
       setHasOnboarded(true);
     }
@@ -96,7 +97,7 @@ const App: React.FC = () => {
   }, []);
 
   const handleOnboarding = () => {
-    localStorage.setItem('patternfit-onboarded', 'true');
+    localStorage.setItem('patternfit-onboarded-v2', 'true');
     setHasOnboarded(true);
   };
 
