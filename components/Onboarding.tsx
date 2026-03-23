@@ -1,121 +1,151 @@
 import React, { useEffect, useState } from 'react';
-import { SparklesIcon, TailorIcon } from './Icons';
+import { TailorIcon } from './Icons';
+import { STYLES } from '../constants';
 
 interface OnboardingProps {
   onStart: () => void;
 }
 
 const Onboarding: React.FC<OnboardingProps> = ({ onStart }) => {
-  const [isLoaded, setIsLoaded] = useState(false);
-  
+  const [scrolled, setScrolled] = useState(false);
+
   useEffect(() => {
-      // Trigger animations slightly after mount for a smooth entrance
-      setTimeout(() => setIsLoaded(true), 100);
+    const handleScroll = (e: Event) => {
+      const target = e.target as HTMLDivElement;
+      setScrolled(target.scrollTop > 50);
+    };
+    const scrollContainer = document.getElementById('landing-scroll-container');
+    scrollContainer?.addEventListener('scroll', handleScroll);
+    return () => scrollContainer?.removeEventListener('scroll', handleScroll);
   }, []);
 
   return (
-    <div className="fixed inset-0 z-5000 bg-white overflow-hidden flex flex-col md:flex-row font-sans selection:bg-brand/20">
+    <div id="landing-scroll-container" className="fixed inset-0 z-[5000] bg-[#FAFAFA] overflow-y-auto overflow-x-hidden font-sans text-[#111111] selection:bg-brand/20">
       
-      {/* Left Output - Typography & Action */}
-      <div className={`w-full md:w-5/12 lg:w-1/2 p-8 md:p-16 lg:p-24 flex flex-col justify-center h-full relative z-10 transition-all duration-1000 ease-out ${isLoaded ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-12'}`}>
+      {/* Sticky Elegant Navbar */}
+      <nav className={`fixed top-0 w-full z-50 transition-all duration-500 ${scrolled ? 'bg-white/80 backdrop-blur-xl border-b border-gray-200 py-4' : 'bg-transparent py-8'}`}>
+        <div className="max-w-7xl mx-auto px-8 md:px-16 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <TailorIcon className="w-6 h-6 text-[#111111]" />
+            <span className="font-serif text-2xl tracking-wide italic font-bold">PatternFit<span className="text-brand">.ai</span></span>
+          </div>
+          <div className="hidden md:flex gap-10 text-xs font-bold tracking-[0.2em] uppercase text-gray-500">
+            <a href="#vision" className="hover:text-gray-900 transition-colors">Vision</a>
+            <a href="#process" className="hover:text-gray-900 transition-colors">How it works</a>
+            <a href="#studio" className="hover:text-gray-900 transition-colors">Studio</a>
+          </div>
+          <button 
+            onClick={onStart}
+            className="px-8 py-3 bg-[#111111] text-white text-[10px] font-black tracking-widest uppercase hover:bg-brand transition-colors duration-500 rounded-sm"
+          >
+            Enter Studio
+          </button>
+        </div>
+      </nav>
+
+      {/* Hero Section - Editorial Fashion Grid */}
+      <header className="relative pt-40 pb-20 md:pt-56 md:pb-32 px-8 md:px-16 max-w-7xl mx-auto min-h-[90vh] flex flex-col justify-center">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 lg:gap-8 items-center">
           
-          <div className="absolute top-12 left-12 flex items-center gap-4">
-              <div className="p-3 bg-studio-900 rounded-2xl shadow-xl">
-                  <TailorIcon className="w-6 h-6 text-white" />
-              </div>
-              <span className="font-serif italic font-bold text-xl tracking-wide text-studio-900">PatternFit <span className="text-brand">AI</span></span>
+          {/* Typography */}
+          <div className="lg:col-span-6 z-10">
+            <p className="text-brand text-xs font-bold tracking-[0.3em] uppercase mb-8 flex items-center gap-4">
+              <span className="w-12 h-px bg-brand"></span>
+              The Future of Bespoke
+            </p>
+            <h1 className="text-6xl md:text-8xl font-serif leading-[1.1] tracking-tight mb-10 text-[#111111]">
+              Flawless Fit. <br />
+              <span className="italic text-gray-400 font-light">Zero Guesswork.</span>
+            </h1>
+            <p className="text-lg md:text-xl text-gray-500 font-light leading-relaxed max-w-lg mb-12">
+              Eliminate the anxiety of remote tailoring. We turn a single photo into precise tailoring measurements and true-to-life 3D visualizations before the fabric is ever cut.
+            </p>
+            <button 
+              onClick={onStart}
+              className="group flex items-center gap-6 text-[11px] font-black tracking-[0.3em] uppercase text-[#111111] hover:text-brand transition-colors"
+            >
+              Start Generating
+              <span className="w-12 h-px bg-[#111111] group-hover:bg-brand group-hover:w-20 transition-all duration-500"></span>
+            </button>
           </div>
 
-          <div className="mt-20 max-w-xl">
+          {/* Editorial Image Collage */}
+          <div className="lg:col-span-6 relative h-[600px] w-full flex justify-center items-center">
+              {/* Back Image (Gown) */}
+              <div className="absolute right-0 top-0 w-3/5 h-[85%] overflow-hidden shadow-2xl z-0 transform translate-y-8 animate-fade" style={{ animationDelay: '0.2s' }}>
+                <img src="/assets/studio/landing_gown_measured_1774259599110.png" className="w-full h-full object-cover grayscale mix-blend-multiply opacity-80" alt="Gown Specs" />
+              </div>
               
-              <h1 className="text-5xl lg:text-7xl font-serif text-studio-900 leading-[1.1] tracking-tight mb-8">
-                  True-to-life <br />
-                  <span className="italic text-studio-600">Virtual Tailoring.</span>
-              </h1>
-              
-              <p className="text-lg text-studio-500 font-light leading-relaxed mb-12 max-w-md">
-                 Experience the industry-standard intersection of African bespoke craftsmanship and neural design rendering. Bring your technical specifications to life in stunning definition.
+              {/* Front Image (Kaftan) */}
+              <div className="absolute left-0 bottom-0 w-[55%] h-[75%] border-8 border-[#FAFAFA] overflow-hidden shadow-2xl z-10 transform -translate-y-8 animate-fade" style={{ animationDelay: '0.4s' }}>
+                <img src="/assets/studio/landing_kaftan_measured_1774259559085.png" className="w-full h-full object-cover hover:scale-105 transition-transform duration-1000" alt="Kaftan Specs" />
+              </div>
+          </div>
+        </div>
+      </header>
+
+      {/* The Process Section - Ultra Clean */}
+      <section id="process" className="py-32 bg-white px-8 md:px-16">
+        <div className="max-w-7xl mx-auto">
+          
+          <div className="text-center mb-24">
+            <h2 className="text-4xl md:text-6xl font-serif text-[#111111] mb-6 tracking-tight">The <span className="italic text-brand">Process.</span></h2>
+            <p className="text-gray-500 tracking-widest uppercase text-[10px] font-bold">How PatternFit guarantees precision</p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-12 border-t border-gray-100 pt-16">
+            
+            {/* Step 1 */}
+            <div className="group">
+              <span className="text-6xl font-serif text-gray-200 italic block mb-8 transition-colors group-hover:text-brand">01</span>
+              <h3 className="text-xs font-bold tracking-[0.2em] uppercase text-[#111111] mb-4">Snap & Upload</h3>
+              <p className="text-gray-500 font-light leading-relaxed text-sm">
+                Provide a simple full-body photo and enter your base height. No messy tape measure required.
               </p>
+            </div>
 
-              <div className="flex flex-col sm:flex-row items-center gap-6">
-                  <button
-                    onClick={onStart}
-                    className="group relative px-10 py-5 bg-studio-900 text-white font-black text-xs tracking-widest uppercase overflow-hidden w-full sm:w-auto text-center"
-                  >
-                      <div className="absolute inset-0 bg-brand translate-y-full group-hover:translate-y-0 transition-transform duration-500 ease-out z-0"></div>
-                      <span className="relative z-10 flex items-center justify-center gap-3">
-                        <SparklesIcon className="w-4 h-4 group-hover:rotate-12 transition-transform" />
-                        Initialize Studio
-                      </span>
-                  </button>
-                  <span className="text-[10px] font-mono tracking-widest text-studio-400 border border-studio-200 px-4 py-2 uppercase">Platform Live</span>
-              </div>
+            {/* Step 2 */}
+            <div className="group">
+              <span className="text-6xl font-serif text-gray-200 italic block mb-8 transition-colors group-hover:text-brand">02</span>
+              <h3 className="text-xs font-bold tracking-[0.2em] uppercase text-[#111111] mb-4">AI Magic Measure</h3>
+              <p className="text-gray-500 font-light leading-relaxed text-sm">
+                Our vision engine scans your proportions to securely extract pixel-perfect bust, waist, and hip parameters.
+              </p>
+            </div>
+
+            {/* Step 3 */}
+            <div className="group">
+              <span className="text-6xl font-serif text-gray-200 italic block mb-8 transition-colors group-hover:text-brand">03</span>
+              <h3 className="text-xs font-bold tracking-[0.2em] uppercase text-[#111111] mb-4">Virtual Try-on</h3>
+              <p className="text-gray-500 font-light leading-relaxed text-sm">
+                Apply real African textiles (Aso-Oke, Ankara) and complex embroidery over your 3D digital silhouette.
+              </p>
+            </div>
+
+            {/* Step 4 */}
+            <div className="group">
+              <span className="text-6xl font-serif text-gray-200 italic block mb-8 transition-colors group-hover:text-brand">04</span>
+              <h3 className="text-xs font-bold tracking-[0.2em] uppercase text-[#111111] mb-4">Tailor Handover</h3>
+              <p className="text-gray-500 font-light leading-relaxed text-sm">
+                Your physical tailor receives exactly what you see: flawless blueprints and a perfect visual agreement.
+              </p>
+            </div>
+
           </div>
+        </div>
+      </section>
 
-          {/* Technical Footer */}
-          <div className="absolute bottom-12 left-12 flex gap-12 text-[9px] font-mono tracking-widest text-studio-300 uppercase">
-              <div>
-                  <span className="block text-studio-900 font-bold mb-1">Architecture</span>
-                  <span>Neural_Cad_SYS</span>
-              </div>
-              <div>
-                  <span className="block text-studio-900 font-bold mb-1">Render Status</span>
-                  <span className="flex items-center gap-2"><span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></span> Online</span>
-              </div>
-          </div>
-      </div>
+      {/* Footer CTA */}
+      <section className="py-40 bg-[#111111] text-center px-8">
+        <h2 className="text-5xl md:text-7xl font-serif text-white mb-10 tracking-tight italic">Ready to Design?</h2>
+        <button 
+            onClick={onStart}
+            className="px-12 py-5 bg-white text-[#111111] text-[11px] font-black tracking-[0.3em] uppercase hover:bg-brand hover:text-white transition-all duration-500 rounded-sm shadow-2xl hover:-translate-y-2"
+        >
+            Enter Workspace
+        </button>
+      </section>
 
-      {/* Right Output - Hero Visual */}
-      <div className={`relative w-full md:w-7/12 lg:w-1/2 h-full bg-studio-50 flex items-center justify-center overflow-hidden transition-all duration-1000 delay-300 ease-out border-l border-studio-200 ${isLoaded ? 'opacity-100' : 'opacity-0'}`}>
-          
-          {/* Subtle CAD Grid Background */}
-          <div className="absolute inset-0 opacity-20 pointer-events-none" 
-               style={{ backgroundImage: 'radial-gradient(circle, #94a3b8 1px, transparent 1px)', backgroundSize: '40px 40px' }} />
-          
-          {/* Tech lines */}
-          <div className="absolute top-0 left-10 w-px h-full bg-studio-200/50"></div>
-          <div className="absolute top-1/2 left-0 w-full h-px bg-studio-200/50"></div>
-          <div className="absolute top-[20%] right-10 flex items-center gap-2 text-[10px] font-mono tracking-widest text-studio-400 rotate-90 transform origin-top-right">
-              VIEWPORT_RENDER_01
-              <span className="w-8 h-px bg-studio-300"></span>
-          </div>
-
-          {/* High-Def Side-by-Side Measurement Layout */}
-          <div className="relative w-full h-[85%] px-6 md:px-12 flex flex-col md:flex-row items-center justify-center gap-6 lg:gap-10">
-              
-              {/* Card - Men's Kaftan */}
-              <div className="relative w-full md:w-1/2 max-w-[320px] aspect-[4/5] bg-white shadow-[0_30px_60px_-15px_rgba(0,0,0,0.15)] rounded-3xl overflow-hidden border border-studio-200 transition-transform duration-700 hover:-translate-y-2 group">
-                   <img 
-                      src="/assets/studio/landing_kaftan_measured_1774259559085.png" 
-                      alt="Men Kaftan Measurement Specifications" 
-                      className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-[2s]" 
-                    />
-                   <div className="absolute top-4 left-4 bg-brand/95 backdrop-blur-md px-3 py-1.5 text-[9px] font-mono tracking-widest text-white uppercase rounded-md z-10 shadow-lg">Spec_Profile_M</div>
-              </div>
-
-              {/* Card - Women's Gown (Slightly offset downward for an asymmetrical designer look) */}
-              <div className="relative w-full md:w-1/2 max-w-[320px] aspect-[4/5] bg-white shadow-[0_30px_60px_-15px_rgba(0,0,0,0.15)] rounded-3xl overflow-hidden border border-studio-200 transition-transform duration-700 hover:-translate-y-2 md:mt-16 group">
-                   <img 
-                      src="/assets/studio/landing_gown_measured_1774259599110.png" 
-                      alt="Women Measurement Specifications" 
-                      className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-[2s]" 
-                    />
-                   <div className="absolute bottom-4 right-4 bg-white/95 backdrop-blur-md px-3 py-1.5 text-[9px] font-mono tracking-widest text-studio-900 border border-studio-200 uppercase rounded-md z-10 shadow-lg">Spec_Profile_F</div>
-              </div>
-
-              {/* Central Glow Effect */}
-              <div className="absolute inset-0 bg-brand/5 blur-3xl rounded-full pointer-events-none -z-10 mix-blend-multiply"></div>
-          </div>
-
-      </div>
-
-      <style>{`
-          @keyframes float {
-              0% { transform: translateY(0px); }
-              50% { transform: translateY(-20px); }
-              100% { transform: translateY(0px); }
-          }
-      `}</style>
     </div>
   );
 };
