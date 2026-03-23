@@ -1,7 +1,7 @@
 import { Style, Fabric, Design } from './types';
 
 // NOTE: Upgraded to 'Studio-Grade' assets for professional presentation.
-const ART_BASE = 'C:/Users/User/.gemini/antigravity/brain/45572cf3-ba23-4b9e-8380-c5dcea8308c0';
+const ART_BASE = '/assets/studio';
 
 export const FEMALE_FABRICS: Fabric[] = [
   {

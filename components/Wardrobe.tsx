@@ -93,7 +93,7 @@ const Wardrobe: React.FC<WardrobeProps> = ({
           {activeTab === 'fits' ? (
               fits.length === 0 ? (
                 <div className="flex flex-col items-center justify-center h-full text-center space-y-8 opacity-40">
-                  <img src="C:/Users/User/.gemini/antigravity/brain/45572cf3-ba23-4b9e-8380-c5dcea8308c0/studio_empty_state_cad_1774252153238.png" className="w-80 opacity-50 contrast-125" alt="Empty Library" />
+                  <img src="/assets/studio/studio_empty_state_cad_1774252153238.png" className="w-80 opacity-50 contrast-125" alt="Empty Library" />
                   <h3 className="text-xs font-black tracking-widest text-studio-400 uppercase">NO_ACTIVE_PROJECTS_IN_BUFFER</h3>
                 </div>
               ) : (
@@ -168,7 +168,7 @@ const Wardrobe: React.FC<WardrobeProps> = ({
 
                 {collections.length === 0 ? (
                     <div className="grow flex flex-col items-center justify-center text-center space-y-8 opacity-40">
-                         <img src="C:/Users/User/.gemini/antigravity/brain/45572cf3-ba23-4b9e-8380-c5dcea8308c0/studio_empty_state_cad_1774252153238.png" className="w-64 opacity-50 grayscale" alt="Empty Collections" />
+                         <img src="/assets/studio/studio_empty_state_cad_1774252153238.png" className="w-64 opacity-50 grayscale" alt="Empty Collections" />
                          <p className="text-[10px] font-black tracking-widest text-studio-400 uppercase">WORKSPACE_COLLECTIONS_UNDEFINED</p>
                     </div>
                 ) : (
